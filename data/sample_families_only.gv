@@ -1,0 +1,11 @@
+digraph GRAMPS_graph
+{
+  "F0021" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=46.3211,39.3978"><BR/>approx. around 1926<BR/>Culross, Fife, Scottland, UK (46.32 N, 39.4 E)</TD></TR></TABLE>> ];
+  "F0022" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><BR/>1 child</TD></TR></TABLE>> ];
+  "F0023" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><BR/>3 children</TD></TR></TABLE>> ];
+  "F0025" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><BR/>3 children</TD></TR></TABLE>> ];
+  "F0026" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><BR/>2 children</TD></TR></TABLE>> ];
+  "F0027" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.7823,70.2505"><BR/>1934<BR/>Plockton, Highland, , Scottland, UK (51.78 N, 70.25 E)<BR/>3 children</TD></TR></TABLE>> ];
+  "F0028" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><BR/>2 children</TD></TR></TABLE>> ];
+
+}

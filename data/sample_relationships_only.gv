@@ -1,0 +1,41 @@
+digraph GRAMPS_graph
+{
+  subgraph cluster_F0418
+  {
+  style="invis";
+  "I0070" -> "F0418" [ arrowhead=normal arrowtail=none dir=both ]; // father: Ewan Macdonald
+  "I1061" -> "F0418" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Fiona Campbell
+  }
+  "F0418" -> "I1033" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Isla MacDonald
+  "F0418" -> "I1034" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Alasdair MacDonald
+
+  subgraph cluster_F0023
+  {
+  style="invis";
+  "I0058" -> "F0023" [ arrowhead=normal arrowtail=none dir=both ]; // father: Hamish Fraser
+  "I0060" -> "F0023" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Mairi Mackenzie
+  }
+  "F0023" -> "I0069" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Ewan Fraser
+  "F0023" -> "I0059" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Callum Fraser
+  "F0023" -> "I0061" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Angus Fraser
+
+  subgraph cluster_F0025
+  {
+  style="invis";
+  "I0061" -> "F0025" [ arrowhead=normal arrowtail=none dir=both ]; // father: Angus Fraser
+  "I1030" -> "F0025" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Kirsty Douglas
+  }
+  "F0025" -> "I0070" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Hamish Fraser
+  "F0025" -> "I0104" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Ailsa Fraser
+  "F0025" -> "I0062" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Duncan Fraser
+
+  "I1034" -> "F0435" [ arrowhead=normal arrowtail=none dir=both ]; // father: Morag Cameron
+
+  subgraph cluster_F0069
+  {
+  style="invis";
+  "I0173" -> "F0069" [ arrowhead=normal arrowtail=none dir=both ]; // father: Lachlan Grant
+  "I0181" -> "F0069" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Mairi Stewart
+  }
+  "F0069" -> "I0182" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Malcolm Grant
+}
