@@ -1,0 +1,45 @@
+digraph GRAMPS_graph
+{
+  bgcolor=white;
+  center="true"; 
+  charset="utf8";
+  concentrate="false";
+  dpi="72";
+  graph [fontsize=14];
+  margin="1.00,1.00"; 
+  mclimit="99";
+  nodesep="0.20";
+  outputorder="edgesfirst";
+#  page="100.00,50.00";
+  pagedir="BL";
+  rankdir="TB";
+  ranksep="0.60";
+  ratio="expand";
+  searchsize="100";
+  size="97.99,47.99"; 
+  splines="true";
+
+  edge [len=0.5 style=solid fontsize=14];
+  node [style=filled fontsize=14];
+
+# Number of people in database: 1159
+# Number of people of interest: 107
+# Number of families in database: 482
+# Number of families of interest: 50
+# Additional people removed: 0
+# Additional families removed: 0
+# Initial list of people of interest:
+# -> I0057, Sean Murphy
+
+  "I1163" [ shape="box" fillcolor="#e0e0ff" style="solid,filled"  label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Macleod, Alasdair</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.8833,12.5000" ALIGN="LEFT">b. 2025-12-18 Rome, Italy (41.88 N, 12.5 E)</TD></TR></TABLE>> ];
+  "I0004" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0021, F0027" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><IMG SRC="./data/images/f60.png"/></TD></TR><TR><TD>Campbell, Fiona</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=46.3211,39.3978" ALIGN="LEFT">b. 1909-08-02 Aberfoyle, Stirling, Scottland, UK (46.32 N, 39.4 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=42.8700,74.6100" ALIGN="LEFT">d. 1987-09-07 Plockton, Highland, , Scottland, UK (42.87 N, 74.61 E)</TD></TR></TABLE>> ];
+  "I0056" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0021" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><IMG SRC="./data/images/m20.png"/></TD></TR><TR><TD>, Sean</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR></TABLE>> ];
+  "I0057" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0022" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>MacDonald, Ewan</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR></TABLE>> ];
+  "I0058" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0460, F0023, F0461" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><IMG SRC="./data/images/m60.png"/></TD></TR><TR><TD>Fraser, Hamish</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD ALIGN="LEFT">b. 1870 </TD></TR><TR><TD HREF="https://maps.google.com?q=46.3600,48.0500" ALIGN="LEFT">d. approx. 1956-01-00 Pennan, Aberdeenshire, Scottland, UK (46.36 N, 48.05 E)</TD></TR></TABLE>> ];
+  "I0059" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0027" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><IMG SRC="./data/images/m60_2.png"/></TD></TR><TR><TD>Robertson, Callum</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=52.2278,46.3403" ALIGN="LEFT">b. 1908-11-04 Killin, Stirling, Scottland, UK (52.23 N, 46.34 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=42.8700,74.6100" ALIGN="LEFT">d. 1994-06-24 Culross, Fife, Scottland, UK (42.87 N, 74.61 E)</TD></TR></TABLE>> ];
+  "I0060" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0023" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stewart, Isla</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5000,44.4500" ALIGN="LEFT">b. approx. between 1870 and 1883 Killin, Stirling, Scottland, UK (51.5 N, 44.45 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=52.2278,46.3403" ALIGN="LEFT">d. 1917 Killin, Stirling, Scottland, UK (52.23 N, 46.34 E)</TD></TR></TABLE>> ];
+  "I0061" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0025" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><IMG SRC="./data/images/m40.png"/></TD></TR><TR><TD>Sinclair, Angus</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD ALIGN="LEFT">b. 1913 </TD></TR><TR><TD HREF="https://maps.google.com?q=46.3600,48.0500" ALIGN="LEFT">d. 1988-05-04 Strathpeffer, Highland, Scottland, UK (46.36 N., 48.05 E)</TD></TR></TABLE>> ];
+  "I0062" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0026" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><IMG SRC="./data/images/m30.png"/></TD></TR><TR><TD>Cameron, Morag</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=46.3600,48.0500" ALIGN="LEFT">b. 1945 Luss, Argyll, Scottland, UK (46.36 N, 48.05 E)</TD></TR><TR><TD ALIGN="LEFT">d. 1999-12-29 </TD></TR></TABLE>> ];
+  "I0173" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0069" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD><IMG SRC="./data/images/m20.png"/></TD></TR><TR><TD>Buchanan, Neil</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=42.8700,74.6100" ALIGN="LEFT">b. 1971-05-13 Dunkeld, Perth and Kinross, Scottland, UK (42.87 N, 74.61 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=43.8833,-79.4605" ALIGN="LEFT">res. 2018 Toronto Ontario, Canada (43.88 N, 79.46 E)</TD></TR><HR/><TR><TD CELLPADDING="4" HREF="mailto:neil.buchanan@gmail.com">Email: neil.buchanan@gmail.com</TD></TR><TR><TD CELLPADDING="4" HREF="https://facebook.com/profile/576496171">Facebook: https://facebook.com/profile/576496171</TD></TR></TABLE>> ];
+
+}
