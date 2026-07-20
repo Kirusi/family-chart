@@ -90,7 +90,7 @@ class Organizer:
                 ):
                     family_w.parents = [second_parent_id, first_parent_id]
 
-    def assign_levels(self):  # noqa: C901
+    def assign_levels(self) -> None:  # noqa: C901
         """Assign levels to all families and people in the tree."""
         if self.people:
             while True:
@@ -124,32 +124,35 @@ class Organizer:
         if self.people:
             first_person_w = self.people[start_id]
             first_person_w.level = 0
+            visited_node_ids = {start_id}
             nodes_to_track = []
             for fam_id in first_person_w.person.all_marriages:
                 family_w = self.families[fam_id]
                 family_w.level = 1
+                visited_node_ids.add(fam_id)
                 nodes_to_track.append(family_w)
             for fam_id in first_person_w.origins:
                 family_w = self.families[fam_id]
                 family_w.level = -1
+                visited_node_ids.add(fam_id)
                 nodes_to_track.append(family_w)
-            visited_node_ids = {start_id}
 
             while len(nodes_to_track) > 0:
                 tracked_node = nodes_to_track.pop()
                 level = tracked_node.level
-                visited_node_ids.add(tracked_node.id)
                 if tracked_node.id in self.families:
                     family_node_w = tracked_node
                     for id in family_node_w.parents:
                         if id not in visited_node_ids:
                             person_w = self.people[id]
                             person_w.level = level - 1
+                            visited_node_ids.add(id)
                             nodes_to_track.append(person_w)
                     for id in family_node_w.children:
                         if id not in visited_node_ids:
                             person_w = self.people[id]
                             person_w.level = level + 1
+                            visited_node_ids.add(id)
                             nodes_to_track.append(person_w)
                 elif tracked_node.id in self.people:  # pragma: no branch
                     person_node_w = tracked_node
@@ -157,11 +160,13 @@ class Organizer:
                         if id not in visited_node_ids:
                             family_w = self.families[id]
                             family_w.level = level - 1
+                            visited_node_ids.add(id)
                             nodes_to_track.append(family_w)
                     for id in person_node_w.person.all_marriages:
                         if id not in visited_node_ids:
                             family_w = self.families[id]
                             family_w.level = level + 1
+                            visited_node_ids.add(id)
                             nodes_to_track.append(family_w)
 
     def serialize_by_level(self):
@@ -189,6 +194,20 @@ class Organizer:
                 return parent_id
         return None
 
+    def filter_marriages_by_level(
+        self, marriage_ids: list[str], expected_level: int, reviewed_families: set[str]
+    ) -> list[FamilyWrapper]:
+        """Check that all provided familes have the expected level and were not previously reviewed."""
+        filtered_marriages: list[FamilyWrapper] = []
+        for family_id in marriage_ids:
+            if family_id not in reviewed_families:
+                family_w = self.families.get(family_id)
+                if family_w is None:
+                    raise ValueError(f"Family '{family_id}' is unknown")
+                if family_w.level == expected_level:
+                    filtered_marriages.append(family_w)
+        return filtered_marriages
+
     def order_marriages(  # noqa: C901
         self, person_id: str, reviewed_people: set[str], reviewed_families: set[str]
     ) -> Block:
@@ -199,67 +218,95 @@ class Organizer:
         if person_id not in reviewed_people:
             queue: list[BlockQueueItem] = []
             person_w = self.people[person_id]
+            expected_level = person_w.level
             res = Block(person_w)
             reviewed_people.add(person_id)
             gender = person_w.gender
-            all_mariages = person_w.person.all_marriages
-            match len(all_mariages):
+            all_marriages = person_w.person.all_marriages
+            filtered_marriages = self.filter_marriages_by_level(all_marriages, expected_level + 1, reviewed_families)
+            match len(filtered_marriages):
                 case 0:
                     pass
                 case 1:
-                    family_id = all_mariages[0]
-                    if family_id not in reviewed_families:
-                        family_w = self.families[family_id]
+                    family_w = filtered_marriages[0]
+                    family_id = family_w.id
+                    reviewed_families.add(family_id)
+                    res.add_family(family_w)
+                    other_parent_id = self.find_other_parent(family_id, person_id)
+                    if other_parent_id is not None:
+                        other_parent_w = self.people[other_parent_id]
+                        if gender == PersonWrapper.MAN:
+                            if other_parent_id not in reviewed_people:
+                                res.add_person_relatively(other_parent_w, person_id, "R")
+                                queue.append(
+                                    BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="R")
+                                )
+                        else:
+                            if other_parent_id not in reviewed_people:
+                                res.add_person_relatively(other_parent_w, person_id, "L")
+                                queue.append(
+                                    BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="L")
+                                )
+                        reviewed_people.add(other_parent_id)
+                case _:
+                    is_first = True
+                    for family_w in filtered_marriages:
+                        family_id = family_w.id
                         reviewed_families.add(family_id)
                         res.add_family(family_w)
                         other_parent_id = self.find_other_parent(family_id, person_id)
-                        if other_parent_id is not None:
+                        if other_parent_id is not None and other_parent_id not in reviewed_people:
                             other_parent_w = self.people[other_parent_id]
-                            if gender == PersonWrapper.MAN:
-                                if other_parent_id not in reviewed_people:
-                                    res.add_person_relatively(other_parent_w, person_id, "R")
-                                    queue.append(
-                                        BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="R")
-                                    )
-                            else:
-                                if other_parent_id not in reviewed_people:
-                                    res.add_person_relatively(other_parent_w, person_id, "L")
-                                    queue.append(
-                                        BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="L")
-                                    )
                             reviewed_people.add(other_parent_id)
-                case _:
-                    is_first = True
-                    for family_id in all_mariages:
-                        if family_id not in reviewed_families:
-                            reviewed_families.add(family_id)
-                            family_w = self.families[family_id]
-                            res.add_family(family_w)
-                            other_parent_id = self.find_other_parent(family_id, person_id)
-                            if other_parent_id is not None and other_parent_id not in reviewed_people:
-                                other_parent_w = self.people[other_parent_id]
-                                reviewed_people.add(other_parent_id)
-                                if is_first:
-                                    res.add_person_relatively(other_parent_w, person_id, "L")
-                                    queue.append(
-                                        BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="L")
-                                    )
-                                    is_first = False
-                                else:
-                                    res.add_person(other_parent_w)
-                                    queue.append(
-                                        BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="R")
-                                    )
-            # self.order_marriages_from_queue(res, queue, reviewed_people, reviewed_families)
+                            if is_first:
+                                res.add_person_relatively(other_parent_w, person_id, "L")
+                                queue.append(
+                                    BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="L")
+                                )
+                                is_first = False
+                            else:
+                                res.add_person(other_parent_w)
+                                queue.append(
+                                    BlockQueueItem(person_id=other_parent_id, family_id=family_id, direction="R")
+                                )
+            self.order_marriages_from_queue(res, expected_level, queue, reviewed_people, reviewed_families)
         return res
 
-    """
     def order_marriages_from_queue(
-        self, block: Block, queue: list[BlockQueueItem], reviewed_people: set[str], reviewed_families: set[str]
+        self,
+        block: Block,
+        expected_level: int,
+        _queue: list[BlockQueueItem],
+        reviewed_people: set[str],
+        reviewed_families: set[str],
     ) -> None:
-        ""Review and add spouses of spouses.""
+        """Review and add spouses of spouses."""
+        queue = [*_queue]
         for item in queue:
             person_id = item.person_id
             family_id = item.family_id
             direction = item.direction
-    """
+            person_w = self.people.get(person_id)
+            if person_w is None:
+                raise ValueError(f"Person '{person_id}' is unknown")
+            anchor_person_id = person_id
+            anchor_family_id = family_id
+            all_marriages = person_w.person.all_marriages
+            expected_level = person_w.level
+            filtered_marriages = self.filter_marriages_by_level(all_marriages, expected_level + 1, reviewed_families)
+            for marriage_w in filtered_marriages:
+                marriage_id = marriage_w.id
+                if marriage_id != family_id:
+                    other_parent_id = self.find_other_parent(marriage_id, person_id)
+                    if other_parent_id is not None and other_parent_id not in reviewed_people:
+                        other_parent_w = self.people.get(other_parent_id)
+                        if other_parent_w is None:
+                            raise ValueError(f"Person '{other_parent_id}' not found")
+                        reviewed_people.add(other_parent_id)
+                        queue.append(BlockQueueItem(other_parent_id, marriage_id, direction))
+                        block.add_person_relatively(other_parent_w, anchor_person_id, direction)
+                        anchor_person_id = other_parent_id
+                    if marriage_id not in reviewed_families:
+                        reviewed_families.add(marriage_id)
+                        block.add_family_relatively(marriage_w, anchor_family_id, direction)
+                        anchor_family_id = marriage_id
