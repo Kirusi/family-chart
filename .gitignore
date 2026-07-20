@@ -12,3 +12,4 @@ wheels/
 t.svg
 main.py
 .coverage
+data/*.png
