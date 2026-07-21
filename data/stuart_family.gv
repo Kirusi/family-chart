@@ -1,0 +1,189 @@
+digraph GRAMPS_graph
+{
+  bgcolor=white;
+  center="true";
+  charset="utf8";
+  concentrate="false";
+  dpi="72";
+  graph [fontsize=14];
+  margin="1.00,1.00";
+  mclimit="99";
+  nodesep="0.20";
+  outputorder="edgesfirst";
+  pagedir="BL";
+  rankdir="TB";
+  ranksep="0.60";
+  ratio="expand";
+  searchsize="100";
+  size="97.99,47.99";
+  splines="true";
+
+  edge [len=0.5 style=solid fontsize=14];
+  node [style=filled fontsize=14];
+
+# Number of people in database: 35
+# Number of people of interest: 35
+# Number of families in database: 12
+# Number of families of interest: 12
+# Additional people removed: 0
+# Additional families removed: 0
+# Initial list of people of interest:
+# -> I0001, Stuart, James (I of England, VI of Scotland)
+# -> I0023, of Great Britain, George I
+
+  "I0001" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0001" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, James (I of England, VI of Scotland)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=55.9486,-3.1999" ALIGN="LEFT">b. 1566-06-19 Edinburgh Castle, Scotland (55.95 N, 3.20 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.68,-0.02" ALIGN="LEFT">d. 1625-03-27 Theobalds House, Hertfordshire, England (51.68 N, 0.02 W)</TD></TR></TABLE>> ];
+  "I0002" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0001" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Denmark, Anne</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=56.03,9.93" ALIGN="LEFT">b. 1574-12-12 Skanderborg Castle, Denmark (56.03 N, 9.93 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.4039,-0.34" ALIGN="LEFT">d. 1619-03-02 Hampton Court Palace, England (51.40 N, 0.34 W)</TD></TR></TABLE>> ];
+  "I0003" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Henry Frederick (Prince of Wales)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=56.124,-3.948" ALIGN="LEFT">b. 1594-02-19 Stirling Castle, Scotland (56.12 N, 3.95 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">d. 1612-11-06 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR></TABLE>> ];
+  "I0004" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0002" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Elizabeth (Winter Queen of Bohemia)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=56.25,-3.2" ALIGN="LEFT">b. 1596-08-19 Falkland Palace, Fife, Scotland (56.25 N, 3.20 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5116,-0.13" ALIGN="LEFT">d. 1662-02-13 Leicester House, London, England (51.51 N, 0.13 W)</TD></TR></TABLE>> ];
+  "I0005" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0002" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of the Palatinate, Frederick V</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=49.443,11.852" ALIGN="LEFT">b. 1596-08-26 Amberg, Bavaria, Germany (49.44 N, 11.85 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=50.0,8.27" ALIGN="LEFT">d. 1632-11-29 Mainz, Germany (50.00 N, 8.27 E)</TD></TR></TABLE>> ];
+  "I0006" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0003" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Charles I</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=56.07,-3.46" ALIGN="LEFT">b. 1600-11-19 Dunfermline Palace, Fife, Scotland (56.07 N, 3.46 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5033,-0.1276" ALIGN="LEFT">d. 1649-01-30 Whitehall, London, England (51.50 N, 0.13 W)</TD></TR></TABLE>> ];
+  "I0007" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0003" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of France, Henrietta Maria</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.8606,2.3376" ALIGN="LEFT">b. 1609-11-25 Palais du Louvre, Paris, France (48.86 N, 2.34 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.92,2.25" ALIGN="LEFT">d. 1669-08-31 Chateau de Colombes, France (48.92 N, 2.25 E)</TD></TR></TABLE>> ];
+  "I0008" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of the Palatinate, Charles I Louis</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=49.4093,8.6941" ALIGN="LEFT">b. 1617-12-22 Heidelberg, Germany (49.41 N, 8.69 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=49.45,8.62" ALIGN="LEFT">d. 1680-08-28 Edingen, Germany (49.45 N, 8.62 E)</TD></TR></TABLE>> ];
+  "I0009" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of the Rhine, Rupert</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=50.091,14.4" ALIGN="LEFT">b. 1619-12-17 Prague Castle, Bohemia (50.09 N, 14.40 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.4975,-0.1357" ALIGN="LEFT">d. 1682-11-29 Westminster, London, England (51.50 N, 0.14 W)</TD></TR></TABLE>> ];
+  "I0010" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0004" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Hanover, Sophia</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=52.08,4.31" ALIGN="LEFT">b. 1630-10-14 The Hague, Netherlands (52.08 N, 4.31 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=52.39,9.7" ALIGN="LEFT">d. 1714-06-08 Herrenhausen, Hanover, Germany (52.39 N, 9.70 E)</TD></TR></TABLE>> ];
+  "I0011" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0004" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Hanover, Ernest Augustus</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.65,10.34" ALIGN="LEFT">b. 1629-11-20 Herzberg Castle, Germany (51.65 N, 10.34 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=52.39,9.7" ALIGN="LEFT">d. 1698-01-23 Herrenhausen, Hanover, Germany (52.39 N, 9.70 E)</TD></TR></TABLE>> ];
+  "I0012" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0005" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Charles II</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">b. 1630-05-29 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5033,-0.1276" ALIGN="LEFT">d. 1685-02-06 Whitehall, London, England (51.50 N, 0.13 W)</TD></TR></TABLE>> ];
+  "I0013" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0005" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Braganza, Catherine</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=38.78,-7.42" ALIGN="LEFT">b. 1638-11-25 Vila Vicosa, Portugal (38.78 N, 7.42 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=38.71,-9.13" ALIGN="LEFT">d. 1705-12-31 Bemposta Palace, Lisbon, Portugal (38.71 N, 9.13 W)</TD></TR></TABLE>> ];
+  "I0014" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0006" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Mary (Princess Royal)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">b. 1631-11-04 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5033,-0.1276" ALIGN="LEFT">d. 1660-12-24 Whitehall, London, England (51.50 N, 0.13 W)</TD></TR></TABLE>> ];
+  "I0015" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0006" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Orange, William II</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=52.08,4.31" ALIGN="LEFT">b. 1626-05-27 The Hague, Netherlands (52.08 N, 4.31 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=52.08,4.31" ALIGN="LEFT">d. 1650-11-06 The Hague, Netherlands (52.08 N, 4.31 E)</TD></TR></TABLE>> ];
+  "I0016" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0007, F0008" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, James II</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">b. 1633-10-14 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.8987,2.093" ALIGN="LEFT">d. 1701-09-16 Chateau de Saint-Germain-en-Laye, France (48.90 N, 2.09 E)</TD></TR></TABLE>> ];
+  "I0017" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0007" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Hyde, Anne</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.43,-0.63" ALIGN="LEFT">b. 1637-03-12 Cranbourne Lodge, Windsor, England (51.43 N, 0.63 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">d. 1671-03-31 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR></TABLE>> ];
+  "I0018" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0008" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Modena, Mary</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=44.6471,10.9252" ALIGN="LEFT">b. 1658-10-05 Modena, Italy (44.65 N, 10.93 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.8987,2.093" ALIGN="LEFT">d. 1718-05-07 Chateau de Saint-Germain-en-Laye, France (48.90 N, 2.09 E)</TD></TR></TABLE>> ];
+  "I0019" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Elizabeth</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">b. 1635-12-29 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=50.682,-1.322" ALIGN="LEFT">d. 1650-09-08 Carisbrooke Castle, Isle of Wight, England (50.68 N, 1.32 W)</TD></TR></TABLE>> ];
+  "I0020" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Henry (Duke of Gloucester)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.39,-0.44" ALIGN="LEFT">b. 1640-07-08 Oatlands Palace, Surrey, England (51.39 N, 0.44 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5033,-0.1276" ALIGN="LEFT">d. 1660-09-13 Whitehall, London, England (51.50 N, 0.13 W)</TD></TR></TABLE>> ];
+  "I0021" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0009" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Henrietta Anne (Duchess of Orleans)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=50.7236,-3.5339" ALIGN="LEFT">b. 1644-06-16 Bedford House, Exeter, England (50.72 N, 3.53 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.842,2.219" ALIGN="LEFT">d. 1670-06-30 Chateau de Saint-Cloud, France (48.84 N, 2.22 E)</TD></TR></TABLE>> ];
+  "I0022" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0009" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Orleans, Philippe I</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.8987,2.093" ALIGN="LEFT">b. 1640-09-21 Chateau de Saint-Germain-en-Laye, France (48.90 N, 2.09 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.842,2.219" ALIGN="LEFT">d. 1701-06-09 Chateau de Saint-Cloud, France (48.84 N, 2.22 E)</TD></TR></TABLE>> ];
+  "I0023" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Great Britain, George I</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=52.37,9.73" ALIGN="LEFT">b. 1660-05-28 Leineschloss, Hanover, Germany (52.37 N, 9.73 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=52.28,8.05" ALIGN="LEFT">d. 1727-06-11 Osnabruck, Germany (52.28 N, 8.05 E)</TD></TR></TABLE>> ];
+  "I0024" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0010" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Orange, William III</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=52.08,4.31" ALIGN="LEFT">b. 1650-11-14 The Hague, Netherlands (52.08 N, 4.31 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.502,-0.187" ALIGN="LEFT">d. 1702-03-08 Kensington Palace, London, England (51.50 N, 0.19 W)</TD></TR></TABLE>> ];
+  "I0025" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0010" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Mary II</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">b. 1662-04-30 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.502,-0.187" ALIGN="LEFT">d. 1694-12-28 Kensington Palace, London, England (51.50 N, 0.19 W)</TD></TR></TABLE>> ];
+  "I0026" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0011" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Anne (Queen Anne)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">b. 1665-02-06 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.502,-0.187" ALIGN="LEFT">d. 1714-08-01 Kensington Palace, London, England (51.50 N, 0.19 W)</TD></TR></TABLE>> ];
+  "I0027" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0011" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Denmark, George</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=55.6761,12.5683" ALIGN="LEFT">b. 1653-04-02 Copenhagen, Denmark (55.68 N, 12.57 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.502,-0.187" ALIGN="LEFT">d. 1708-10-28 Kensington Palace, London, England (51.50 N, 0.19 W)</TD></TR></TABLE>> ];
+  "I0028" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0012" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, James Francis Edward (The Old Pretender)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">b. 1688-06-10 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.901,12.483" ALIGN="LEFT">d. 1766-01-01 Palazzo del Re, Rome, Italy (41.90 N, 12.48 E)</TD></TR></TABLE>> ];
+  "I0029" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0012" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Sobieska, Maria Clementina</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=50.94,17.29" ALIGN="LEFT">b. 1702-07-18 Olawa, Silesia (50.94 N, 17.29 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.901,12.483" ALIGN="LEFT">d. 1735-01-18 Palazzo del Re, Rome, Italy (41.90 N, 12.48 E)</TD></TR></TABLE>> ];
+  "I0030" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Charles Edward (Bonnie Prince Charlie)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.899,12.48" ALIGN="LEFT">b. 1720-12-31 Palazzo Muti, Rome, Italy (41.90 N, 12.48 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.899,12.48" ALIGN="LEFT">d. 1788-01-31 Palazzo Muti, Rome, Italy (41.90 N, 12.48 E)</TD></TR></TABLE>> ];
+  "I0031" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, Henry Benedict (Cardinal Duke of York)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.899,12.48" ALIGN="LEFT">b. 1725-03-06 Palazzo Muti, Rome, Italy (41.90 N, 12.48 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.808,12.68" ALIGN="LEFT">d. 1807-07-13 Frascati, Italy (41.81 N, 12.68 E)</TD></TR></TABLE>> ];
+  "I0034" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Prussia, Sophia Charlotte</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=52.15,8.05" ALIGN="LEFT">b. 1668-10-30 Iburg Castle, Germany (52.15 N, 8.05 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=52.37,9.73" ALIGN="LEFT">d. 1705-02-01 Hanover, Germany (52.37 N, 9.73 E)</TD></TR></TABLE>> ];
+  "I0035" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Orleans, Marie Louise</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.8637,2.3376" ALIGN="LEFT">b. 1662-03-26 Palais Royal, Paris, France (48.86 N, 2.34 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4155,-3.714" ALIGN="LEFT">d. 1689-02-12 Alcazar of Madrid, Spain (40.42 N, 3.71 W)</TD></TR></TABLE>> ];
+  "I0036" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>of Orleans, Anne Marie</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.8637,2.3376" ALIGN="LEFT">b. 1669-08-27 Palais Royal, Paris, France (48.86 N, 2.34 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=45.0703,7.6869" ALIGN="LEFT">d. 1728-08-26 Turin, Italy (45.07 N, 7.69 E)</TD></TR></TABLE>> ];
+  "I0037" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>Stuart, William (Duke of Gloucester)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.4039,-0.34" ALIGN="LEFT">b. 1689-07-24 Hampton Court Palace, England (51.40 N, 0.34 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.4839,-0.6044" ALIGN="LEFT">d. 1700-07-30 Windsor Castle, England (51.48 N, 0.60 W)</TD></TR></TABLE>> ];
+
+  "F0001" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=59.9139,10.7522"><BR/>1589-11-23<BR/>Oslo, Norway (59.91 N, 10.75 E)<BR/>3 children</TD></TR></TABLE>> ];
+  "F0002" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.5033,-0.1276"><BR/>1613-02-14<BR/>Chapel Royal, Whitehall, London, England (51.50 N, 0.13 W)<BR/>3 children</TD></TR></TABLE>> ];
+  "F0003" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.2802,1.0789"><BR/>1625-06-13<BR/>Canterbury, England (51.28 N, 1.08 E)<BR/>6 children</TD></TR></TABLE>> ];
+  "F0004" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=49.4093,8.6941"><BR/>1658-10-17<BR/>Heidelberg, Germany (49.41 N, 8.69 E)<BR/>2 children</TD></TR></TABLE>> ];
+  "F0005" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=50.8058,-1.0872"><BR/>1662-05-21<BR/>Portsmouth, England (50.81 N, 1.09 W)<BR/>0 children</TD></TR></TABLE>> ];
+  "F0006" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.5033,-0.1276"><BR/>1641-05-02<BR/>Whitehall, London, England (51.50 N, 0.13 W)<BR/>1 child</TD></TR></TABLE>> ];
+  "F0007" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.51,-0.11"><BR/>1660-09-03<BR/>Worcester House, London, England (51.51 N, 0.11 W)<BR/>2 children</TD></TR></TABLE>> ];
+  "F0008" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.1279,1.3134"><BR/>1673-11-21<BR/>Dover, England (51.13 N, 1.31 E)<BR/>1 child</TD></TR></TABLE>> ];
+  "F0009" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=48.8606,2.3376"><BR/>1661-03-31<BR/>Palais du Louvre, Paris, France (48.86 N, 2.34 E)<BR/>2 children</TD></TR></TABLE>> ];
+  "F0010" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392"><BR/>1677-11-04<BR/>St James's Palace, London, England (51.50 N, 0.14 W)<BR/>0 children</TD></TR></TABLE>> ];
+  "F0011" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392"><BR/>1683-07-28<BR/>St James's Palace, London, England (51.50 N, 0.14 W)<BR/>1 child</TD></TR></TABLE>> ];
+  "F0012" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=42.541,11.933"><BR/>1719-09-01<BR/>Montefiascone, Italy (42.54 N, 11.93 E)<BR/>2 children</TD></TR></TABLE>> ];
+
+  subgraph cluster_F0001
+  {
+  style="invis";
+  "I0001" -> "F0001" [ arrowhead=normal arrowtail=none dir=both ]; // father: Stuart, James (I of England, VI of Scotland)
+  "I0002" -> "F0001" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Denmark, Anne
+  }
+  "F0001" -> "I0003" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Henry Frederick (Prince of Wales)
+  "F0001" -> "I0004" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Elizabeth (Winter Queen of Bohemia)
+  "F0001" -> "I0006" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Charles I
+
+  subgraph cluster_F0002
+  {
+  style="invis";
+  "I0005" -> "F0002" [ arrowhead=normal arrowtail=none dir=both ]; // father: of the Palatinate, Frederick V
+  "I0004" -> "F0002" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Stuart, Elizabeth (Winter Queen of Bohemia)
+  }
+  "F0002" -> "I0008" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of the Palatinate, Charles I Louis
+  "F0002" -> "I0009" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of the Rhine, Rupert
+  "F0002" -> "I0010" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Hanover, Sophia
+
+  subgraph cluster_F0003
+  {
+  style="invis";
+  "I0006" -> "F0003" [ arrowhead=normal arrowtail=none dir=both ]; // father: Stuart, Charles I
+  "I0007" -> "F0003" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of France, Henrietta Maria
+  }
+  "F0003" -> "I0012" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Charles II
+  "F0003" -> "I0014" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Mary (Princess Royal)
+  "F0003" -> "I0016" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, James II
+  "F0003" -> "I0019" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Elizabeth
+  "F0003" -> "I0020" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Henry (Duke of Gloucester)
+  "F0003" -> "I0021" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Henrietta Anne (Duchess of Orleans)
+
+  subgraph cluster_F0004
+  {
+  style="invis";
+  "I0011" -> "F0004" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Hanover, Ernest Augustus
+  "I0010" -> "F0004" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Hanover, Sophia
+  }
+  "F0004" -> "I0023" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Great Britain, George I
+  "F0004" -> "I0034" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Prussia, Sophia Charlotte
+
+  subgraph cluster_F0005
+  {
+  style="invis";
+  "I0012" -> "F0005" [ arrowhead=normal arrowtail=none dir=both ]; // father: Stuart, Charles II
+  "I0013" -> "F0005" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Braganza, Catherine
+  }
+
+  subgraph cluster_F0006
+  {
+  style="invis";
+  "I0015" -> "F0006" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Orange, William II
+  "I0014" -> "F0006" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Stuart, Mary (Princess Royal)
+  }
+  "F0006" -> "I0024" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Orange, William III
+
+  subgraph cluster_F0007
+  {
+  style="invis";
+  "I0016" -> "F0007" [ arrowhead=normal arrowtail=none dir=both ]; // father: Stuart, James II
+  "I0017" -> "F0007" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Hyde, Anne
+  }
+  "F0007" -> "I0025" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Mary II
+  "F0007" -> "I0026" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Anne (Queen Anne)
+
+  subgraph cluster_F0008
+  {
+  style="invis";
+  "I0016" -> "F0008" [ arrowhead=normal arrowtail=none dir=both ]; // father: Stuart, James II
+  "I0018" -> "F0008" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Modena, Mary
+  }
+  "F0008" -> "I0028" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, James Francis Edward (The Old Pretender)
+
+  subgraph cluster_F0009
+  {
+  style="invis";
+  "I0022" -> "F0009" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Orleans, Philippe I
+  "I0021" -> "F0009" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Stuart, Henrietta Anne (Duchess of Orleans)
+  }
+  "F0009" -> "I0035" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Orleans, Marie Louise
+  "F0009" -> "I0036" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Orleans, Anne Marie
+
+  subgraph cluster_F0010
+  {
+  style="invis";
+  "I0024" -> "F0010" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Orange, William III
+  "I0025" -> "F0010" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Stuart, Mary II
+  }
+
+  subgraph cluster_F0011
+  {
+  style="invis";
+  "I0027" -> "F0011" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Denmark, George
+  "I0026" -> "F0011" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Stuart, Anne (Queen Anne)
+  }
+  "F0011" -> "I0037" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, William (Duke of Gloucester)
+
+  subgraph cluster_F0012
+  {
+  style="invis";
+  "I0028" -> "F0012" [ arrowhead=normal arrowtail=none dir=both ]; // father: Stuart, James Francis Edward (The Old Pretender)
+  "I0029" -> "F0012" [ arrowhead=normal arrowtail=none dir=both ]; // mother: Sobieska, Maria Clementina
+  }
+  "F0012" -> "I0030" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Charles Edward (Bonnie Prince Charlie)
+  "F0012" -> "I0031" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: Stuart, Henry Benedict (Cardinal Duke of York)
+}

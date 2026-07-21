@@ -7,6 +7,7 @@ from family_chart.block import Block
 from family_chart.constants import MIN_LEVEL
 from family_chart.family_tree import FamilyTree
 from family_chart.family_wrapper import FamilyWrapper
+from family_chart.origin_wrapper import OriginWrapper
 from family_chart.person_wrapper import PersonWrapper
 
 
@@ -63,7 +64,11 @@ class Organizer:
                     )
                 family_w.children.append(to_id)
                 person_w = self.people[to_id]
-                person_w.origins.append(from_id)
+                is_adopted = (
+                    relationship.attrs and "style" in relationship.attrs and relationship.attrs["style"] != "solid"
+                )
+                origin_w = OriginWrapper(from_id, is_adopted)
+                person_w.origins.append(origin_w)
             elif to_id in self.families:
                 family_w = self.families[to_id]
                 if from_id not in self.people:
@@ -80,6 +85,7 @@ class Organizer:
                     family_w = self.families.get(family_id)
                     if family_w and person_w.id not in family_w.parents:
                         family_w.parents.append(person_w.id)
+            person_w.find_primary_parent_family_id()
         for family_w in self.families.values():
             if len(family_w.parents) == 2:
                 first_parent_id = family_w.parents[0]
@@ -131,7 +137,8 @@ class Organizer:
                 family_w.level = 1
                 visited_node_ids.add(fam_id)
                 nodes_to_track.append(family_w)
-            for fam_id in first_person_w.origins:
+            for origin_w in first_person_w.origins:
+                fam_id = origin_w.parent_family_id
                 family_w = self.families[fam_id]
                 family_w.level = -1
                 visited_node_ids.add(fam_id)
@@ -142,31 +149,33 @@ class Organizer:
                 level = tracked_node.level
                 if tracked_node.id in self.families:
                     family_node_w = tracked_node
-                    for id in family_node_w.parents:
-                        if id not in visited_node_ids:
-                            person_w = self.people[id]
+                    for fam_id in family_node_w.parents:
+                        if fam_id not in visited_node_ids:
+                            person_w = self.people[fam_id]
                             person_w.level = level - 1
-                            visited_node_ids.add(id)
+                            visited_node_ids.add(fam_id)
                             nodes_to_track.append(person_w)
-                    for id in family_node_w.children:
-                        if id not in visited_node_ids:
-                            person_w = self.people[id]
+                    for fam_id in family_node_w.children:
+                        if fam_id not in visited_node_ids:
+                            person_w = self.people[fam_id]
                             person_w.level = level + 1
-                            visited_node_ids.add(id)
+                            visited_node_ids.add(fam_id)
                             nodes_to_track.append(person_w)
                 elif tracked_node.id in self.people:  # pragma: no branch
                     person_node_w = tracked_node
-                    for id in person_node_w.origins:
-                        if id not in visited_node_ids:
-                            family_w = self.families[id]
+                    for origin_w in person_node_w.origins:
+                        fam_id = origin_w.parent_family_id
+                        family_w = self.families[fam_id]
+                        if fam_id not in visited_node_ids:
+                            family_w = self.families[fam_id]
                             family_w.level = level - 1
-                            visited_node_ids.add(id)
+                            visited_node_ids.add(fam_id)
                             nodes_to_track.append(family_w)
-                    for id in person_node_w.person.all_marriages:
-                        if id not in visited_node_ids:
-                            family_w = self.families[id]
+                    for fam_id in person_node_w.person.all_marriages:
+                        if fam_id not in visited_node_ids:
+                            family_w = self.families[fam_id]
                             family_w.level = level + 1
-                            visited_node_ids.add(id)
+                            visited_node_ids.add(fam_id)
                             nodes_to_track.append(family_w)
 
     def serialize_by_level(self):
