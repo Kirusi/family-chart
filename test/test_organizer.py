@@ -1980,10 +1980,8 @@ class TestOrganizeSubsequentRow:
         assert reviewed_families == {"F1", "F2"}
 
     def test_child_pulled_in_only_through_its_primary_family(self):
-        # I5 is a biological child of F1 (solid, listed second so it wins as primary) and
-        # was also adopted into F3 (dashed, listed first). Both F1 and F3 sit in the
-        # previous row. Only F1's entry for I5 should count; F3's should be filtered out
-        # by the primary_parent_family_id check, so I5 is not duplicated.
+        # I5 is an adopted child of F1
+        # The test verifies that the marriage of I3 and I5 shows them as being in separate blocks (unlike siblings)
         t = FamilyTree(
             [
                 Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf1")], all_marriages=["F1"]),
@@ -2057,10 +2055,9 @@ class TestOrganizeSubsequentRow:
         assert reviewed_people == {"I1", "I2", "I3", "I4", "I8", "I9"}
         assert reviewed_families == {"F1", "F2", "F3"}
 
-    def test_person_not_a_child_of_any_previous_family_is_included_via_person_loop(self):
-        # I5 has no connection to F1 at all (not one of its children, no marriage). It can
-        # only end up in the result through the trailing sorted_people loop that covers
-        # everyone at this level not already picked up as a child of the previous row.
+    def test_in_laws_are_collected(self):
+        # I5 has no direct connection to I2. They are connected as in-laws
+        # Nevertheless, bot I2 and I5 are shown in the second row
         t = FamilyTree(
             [
                 Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf")], all_marriages=["F1"]),
@@ -2118,7 +2115,7 @@ class TestOrganizeSubsequentRow:
                 Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("father")], all_marriages=["F2"]),
                 Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["F3"]),
                 Person(
-                    id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("daughter")], all_marriages=["F3"]
+                    id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")], all_marriages=["F3"]
                 ),
             ],
             [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4")],
