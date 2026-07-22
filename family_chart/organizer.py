@@ -373,23 +373,44 @@ class Organizer:
                         block.add_family_relatively(marriage_w, anchor_family_id, direction)
                         anchor_family_id = marriage_id
 
-    def organize_first_level(
-        self, levels: dict[str, list[Any]], reviewed_people: set[str], reviewed_families: set[str]
+    def organize_row(  # noqa: C901
+        self,
+        levels: dict[str, list[Any]],
+        reviewed_people: set[str],
+        reviewed_families: set[str],
+        start_level: int = 0,
+        previous_row: Row | None = None,
     ) -> Row:
-        """Create blocks for the first level."""
+        """Create blocks for a row, pulling in the previous row's children first when it is provided."""
         res: Row = Row()
-        person_level = levels.get(0)
-        if person_level:
-            first_wrapper = person_level[0]
+        first_level = levels.get(start_level)
+        if first_level:
+            first_wrapper = first_level[0]
             if isinstance(first_wrapper, FamilyWrapper):
-                for family_w in person_level:
+                if previous_row is not None:
+                    raise ValueError(f"Expected to find people in row '{start_level}', but found families")
+                for family_w in first_level:
                     block = Block()
                     block.add_family(family_w)
                     res.add_block(block)
                     reviewed_families.add(family_w.id)
             elif isinstance(first_wrapper, PersonWrapper):
-                family_level = levels.get(1, [])
-                sorted_people = sorted(person_level, key=lambda person_w: person_w.sorting_key)
+                if previous_row is not None:
+                    parent_families = [
+                        family for family_list in previous_row.get_families() for family in family_list
+                    ]  # flatten the list
+                    children_ids = []
+                    for family_w in parent_families:
+                        for child_id in family_w.children:
+                            child_w = self.people[child_id]
+                            if child_w.primary_parent_family_id == family_w.id:
+                                children_ids.append(child_w.id)
+                    for id in children_ids:
+                        if id not in reviewed_people:
+                            block = self.order_marriages(id, reviewed_people, reviewed_families)
+                            res.add_block(block)
+                family_level = levels.get(start_level + 1, [])
+                sorted_people = sorted(first_level, key=lambda person_w: person_w.sorting_key)
                 for person_w in sorted_people:
                     if person_w.id not in reviewed_people:
                         block = self.order_marriages(person_w.id, reviewed_people, reviewed_families)
@@ -402,47 +423,4 @@ class Organizer:
                         reviewed_families.add(family_w.id)
             else:
                 raise ValueError(f"Unexpected object in one of the assigned levels {first_wrapper}")
-        return res
-
-    def organize_subsequent_row(  # noqa: C901
-        self,
-        start_level: int,
-        previous_row: Row,
-        levels: dict[str, list[Any]],
-        reviewed_people: set[str],
-        reviewed_families: set[str],
-    ) -> Row:
-        """Order people and families in a row below the first."""
-        res: Row = Row()
-        person_level = levels.get(start_level)
-        if person_level:
-            first_wrapper = person_level[0]
-            if not isinstance(first_wrapper, PersonWrapper):
-                raise ValueError(f"Expected to find people in row '{start_level}', but found families")
-
-            parent_families = [
-                family for family_list in previous_row.get_families() for family in family_list
-            ]  # flatten the list
-            children_ids = []
-            for family_w in parent_families:
-                for child_id in family_w.children:
-                    child_w = self.people[child_id]
-                    if child_w.primary_parent_family_id == family_w.id:
-                        children_ids.append(child_w.id)
-            for id in children_ids:
-                if id not in reviewed_people:
-                    block = self.order_marriages(id, reviewed_people, reviewed_families)
-                    res.add_block(block)
-            family_level = levels.get(start_level + 1, [])
-            sorted_people = sorted(person_level, key=lambda person_w: person_w.sorting_key)
-            for person_w in sorted_people:
-                if person_w.id not in reviewed_people:
-                    block = self.order_marriages(person_w.id, reviewed_people, reviewed_families)
-                    res.add_block(block)
-            for family_w in family_level:
-                if family_w.id not in reviewed_families:
-                    block = Block()
-                    block.add_family(family_w)
-                    res.add_block(block)
-                    reviewed_families.add(family_w.id)
         return res
