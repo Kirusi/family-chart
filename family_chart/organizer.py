@@ -11,6 +11,7 @@ from family_chart.family_tree import FamilyTree
 from family_chart.family_wrapper import FamilyWrapper
 from family_chart.origin_wrapper import OriginWrapper
 from family_chart.person_wrapper import PersonWrapper
+from family_chart.row import Row
 
 
 @dataclass
@@ -371,18 +372,18 @@ class Organizer:
                         block.add_family_relatively(marriage_w, anchor_family_id, direction)
                         anchor_family_id = marriage_id
 
-    def organize_first_level(self, reviewed_people: set[str], reviewed_families: set[str]) -> list[Block]:
+    def organize_first_level(self, reviewed_people: set[str], reviewed_families: set[str]) -> Row:
         """Create blocks for the first level."""
         levels = self.organize_by_level()
         level0 = levels.get(0)
 
-        res: list[Block] = []
+        res: Row = Row()
         if level0:
             if isinstance(level0[0], FamilyWrapper):
                 for family_w in level0:
                     block = Block()
                     block.add_family(family_w)
-                    res.append(block)
+                    res.add_block(block)
                     reviewed_families.add(family_w.id)
             else:
                 level1 = levels.get(1, [])
@@ -390,11 +391,11 @@ class Organizer:
                 for person_w in sorted_people:
                     if person_w.id not in reviewed_people:
                         block = self.order_marriages(person_w.id, reviewed_people, reviewed_families)
-                        res.append(block)
+                        res.add_block(block)
                 for family_w in level1:
                     if family_w.id not in reviewed_families:
                         block = Block()
                         block.add_family(family_w)
-                        res.append(block)
+                        res.add_block(block)
                         reviewed_families.add(family_w.id)
         return res

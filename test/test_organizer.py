@@ -1674,7 +1674,7 @@ class TestOrganizeFirstLevel:
         reviewed_people = set()
         reviewed_families = set()
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert res == []
+        assert res.blocks == []
         assert reviewed_people == set()
         assert reviewed_families == set()
 
@@ -1691,8 +1691,8 @@ class TestOrganizeFirstLevel:
         reviewed_people = set()
         reviewed_families = set()
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert [[p.id for p in b.people] for b in res] == [["I1"]]
-        assert [[f.id for f in b.families] for b in res] == [[]]
+        assert res.get_people_ids() == [["I1"]]
+        assert res.get_family_ids() == [[]]
         assert reviewed_people == {"I1"}
         assert reviewed_families == set()
 
@@ -1717,8 +1717,8 @@ class TestOrganizeFirstLevel:
         reviewed_people = set()
         reviewed_families = set()
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert [[p.id for p in b.people] for b in res] == [[]]
-        assert [[f.id for f in b.families] for b in res] == [["F0"]]
+        assert res.get_people_ids() == [[]]
+        assert res.get_family_ids() == [["F0"]]
         assert reviewed_people == set()
         assert reviewed_families == {"F0"}
 
@@ -1738,8 +1738,8 @@ class TestOrganizeFirstLevel:
         reviewed_people = set()
         reviewed_families = set()
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert [[p.id for p in b.people] for b in res] == [["I1", "I2"]]
-        assert [[f.id for f in b.families] for b in res] == [["F1"]]
+        assert res.get_people_ids() == [["I1", "I2"]]
+        assert res.get_family_ids() == [["F1"]]
         assert reviewed_people == {"I1", "I2"}
         assert reviewed_families == {"F1"}
 
@@ -1757,7 +1757,7 @@ class TestOrganizeFirstLevel:
         reviewed_people = {"I1", "I2"}
         reviewed_families = {"F1"}
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert res == []
+        assert res.blocks == []
         assert reviewed_people == {"I1", "I2"}
         assert reviewed_families == {"F1"}
 
@@ -1781,8 +1781,8 @@ class TestOrganizeFirstLevel:
         reviewed_people = set()
         reviewed_families = set()
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert [[p.id for p in b.people] for b in res] == [["I1"], []]
-        assert [[f.id for f in b.families] for b in res] == [["F1"], ["F2"]]
+        assert res.get_people_ids() == [["I1"], []]
+        assert res.get_family_ids() == [["F1"], ["F2"]]
         assert reviewed_people == {"I1"}
         assert reviewed_families == {"F1", "F2"}
 
@@ -1800,8 +1800,8 @@ class TestOrganizeFirstLevel:
         reviewed_people = set()
         reviewed_families = {"F1"}
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert [[p.id for p in b.people] for b in res] == [["I1"]]
-        assert [[f.id for f in b.families] for b in res] == [[]]
+        assert res.get_people_ids() == [["I1"]]
+        assert res.get_family_ids() == [[]]
         assert reviewed_people == {"I1"}
         assert reviewed_families == {"F1"}
 
@@ -1837,7 +1837,7 @@ class TestOrganizeFirstLevel:
         reviewed_people = set()
         reviewed_families = set()
         res = o.organize_first_level(reviewed_people, reviewed_families)
-        assert [[p.id for p in b.people] for b in res] == [["I4"], ["I1", "I2"], ["I3"]]
-        assert [[f.id for f in b.families] for b in res] == [["F4"], ["F1"], ["F3"]]
+        assert res.get_people_ids() == [["I4"], ["I1", "I2"], ["I3"]]
+        assert res.get_family_ids() == [["F4"], ["F1"], ["F3"]]
         assert reviewed_people == {"I1", "I2", "I3", "I4"}
         assert reviewed_families == {"F1", "F3", "F4"}
