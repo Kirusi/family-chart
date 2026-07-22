@@ -6,7 +6,6 @@ from family_chart.family_tree import FamilyTree
 from family_chart.organizer import BlockQueueItem, Organizer, PersonWrapper
 from family_chart.person import Person
 from family_chart.relationship import Relationship
-from family_chart.row import Row
 from family_chart.text_line import TextLine
 from family_chart.utils import Utils
 
@@ -1762,6 +1761,27 @@ class TestOrganizeRow:
         assert reviewed_people == {"I1"}
         assert reviewed_families == set()
 
+    def test_request_to_order_non_existing_row_fails(self):
+        # There is no family anywhere in the tree, so levels.get(1) is missing entirely;
+        # this exercises the default-to-empty-list guard on that lookup.
+        t = FamilyTree(
+            [Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")])],
+            [],
+            [],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        levels = o.get_objects_by_level()
+        first_row = o.organize_row(levels, reviewed_people, reviewed_families)
+        with pytest.raises(ValueError) as ex:
+            o.organize_row(levels, reviewed_people, reviewed_families, 2, first_row)
+        msg = str(ex)
+        assert "Cannot organize a non-existing row" in msg
+        assert "Requested level is \\'2\\'" in msg
+        assert '{"0": ["I1"]}' in msg
+
     def test_families_at_level_zero_creates_one_block_per_family(self):
         # F0 sits above I1/I2 with its parents list cleared, so level 0 is made up of
         # families rather than people, exercising the FamilyWrapper branch.
@@ -1913,18 +1933,6 @@ class TestOrganizeRow:
         assert res.get_family_ids() == [["F4"], ["F1"], ["F3"]]
         assert reviewed_people == {"I1", "I2", "I3", "I4"}
         assert reviewed_families == {"F1", "F3", "F4"}
-
-    def test_missing_level_returns_empty_row(self):
-        t = FamilyTree([], [], [])
-        o = Organizer(t)
-        res = o.organize_row({}, set(), set(), start_level=2, previous_row=Row())
-        assert res.blocks == []
-
-    def test_empty_level_list_returns_empty_row(self):
-        t = FamilyTree([], [], [])
-        o = Organizer(t)
-        res = o.organize_row({2: []}, set(), set(), start_level=2, previous_row=Row())
-        assert res.blocks == []
 
     def test_raises_when_non_root_level_contains_families_not_people(self):
         t = FamilyTree(

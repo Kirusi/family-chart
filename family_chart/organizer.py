@@ -384,6 +384,12 @@ class Organizer:
         """Create blocks for a row, pulling in the previous row's children first when it is provided."""
         res: Row = Row()
         first_level = levels.get(start_level)
+        if first_level is None and start_level != 0:
+            id_levels = self.get_ids_by_level()
+            raise ValueError(
+                f"Cannot organize a non-existing row. Requested level is '{start_level}', "
+                f"but levels are: {json.dumps(id_levels)}"
+            )
         if first_level:
             first_wrapper = first_level[0]
             if isinstance(first_wrapper, FamilyWrapper):
