@@ -6,6 +6,7 @@ from family_chart.family_tree import FamilyTree
 from family_chart.organizer import BlockQueueItem, Organizer, PersonWrapper
 from family_chart.person import Person
 from family_chart.relationship import Relationship
+from family_chart.row import Row
 from family_chart.text_line import TextLine
 from family_chart.utils import Utils
 
@@ -89,8 +90,28 @@ class TestAssignLevels:
         t = FamilyTree([], [], [])
         o = Organizer(t)
         o.assign_levels_for_source("I1")
-        res = o.serialize_by_level()
+        res = o.get_ids_by_level()
         assert res == {}
+
+    def test_raises_when_tracked_node_is_neither_a_known_person_nor_family(self):
+        # nodes_to_track is only ever populated via self.families[id]/self.people[id]
+        # lookups keyed by a node's original id, so a tracked node's id normally always
+        # resolves back to one of those dicts. Force a mismatch between F1's dict key and
+        # its own id attribute after construction to exercise the defensive else-branch.
+        t = FamilyTree(
+            [Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"])],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1")],
+        )
+        o = Organizer(t)
+        # It is not possible to trigger an exception with regular data structures
+        # Hence we corrupt data
+        o.families["F1"].id = "GHOST"
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels_for_source("I1")
+        msg = str(ex.value)
+        assert "Unexpected node 'GHOST'" in msg
+        assert "not a person or a family" in msg
 
     def test_empty_tree(self):
         t = FamilyTree([], [], [])
@@ -102,7 +123,7 @@ class TestAssignLevels:
         t = FamilyTree([], [], [])
         o = Organizer(t)
         # o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.get_ids_by_level()
         assert res == {}
 
     def test_one_person_without_connections(self):
@@ -483,6 +504,37 @@ class TestAssignLevels:
             5: ["FN"],
             6: ["GN"],
             7: ["FGN"],
+        }
+
+    def test_junction_at_grandchild_level(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Zoe")], all_marriages=["F2"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Bob")], all_marriages=["F3"]),
+                Person(id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Albert")], all_marriages=["F4"]),
+                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("adopted child")]),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="I2", to_id="F2"),
+                Relationship(from_id="F2", to_id="I5"),
+                Relationship(from_id="I3", to_id="F3"),
+                Relationship(from_id="F3", to_id="I5"),
+                Relationship(from_id="I4", to_id="F4"),
+                Relationship(from_id="F4", to_id="I5"),
+            ],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {
+            0: ["I1"],
+            1: ["F1"],
+            2: ["I2", "I3", "I4"],
+            3: ["F2", "F3", "F4"],
+            4: ["I5"],
         }
 
     def test_family_without_parents_at_top_of_hierarchy(self):
@@ -1668,12 +1720,25 @@ class TestOrderMarriagesFromQueue:
 
 
 class TestOrganizeFirstLevel:
+    def test_raises_when_level_zero_contains_neither_people_nor_families(self):
+        # levels is caller-supplied data; feed it something malformed directly to exercise
+        # the defensive else-branch that neither organize_by_level nor real usage can trigger.
+        t = FamilyTree([], [], [])
+        o = Organizer(t)
+        with pytest.raises(ValueError) as ex:
+            # It's not possible to trigger exception during normal execution, hence the use of synthetic data
+            o.organize_first_level({0: ["not a wrapper"]}, set(), set())
+        msg = str(ex.value)
+        assert "Unexpected object in one of the assigned levels" in msg
+        assert "not a wrapper" in msg
+
     def test_empty_tree_returns_empty_list(self):
         t = FamilyTree([], [], [])
         o = Organizer(t)
         reviewed_people = set()
         reviewed_families = set()
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.blocks == []
         assert reviewed_people == set()
         assert reviewed_families == set()
@@ -1690,7 +1755,8 @@ class TestOrganizeFirstLevel:
         o.assign_levels()
         reviewed_people = set()
         reviewed_families = set()
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.get_people_ids() == [["I1"]]
         assert res.get_family_ids() == [[]]
         assert reviewed_people == {"I1"}
@@ -1716,7 +1782,8 @@ class TestOrganizeFirstLevel:
         o.assign_levels()
         reviewed_people = set()
         reviewed_families = set()
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.get_people_ids() == [[]]
         assert res.get_family_ids() == [["F0"]]
         assert reviewed_people == set()
@@ -1737,7 +1804,8 @@ class TestOrganizeFirstLevel:
         o.assign_levels()
         reviewed_people = set()
         reviewed_families = set()
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.get_people_ids() == [["I1", "I2"]]
         assert res.get_family_ids() == [["F1"]]
         assert reviewed_people == {"I1", "I2"}
@@ -1756,7 +1824,8 @@ class TestOrganizeFirstLevel:
         o.assign_levels()
         reviewed_people = {"I1", "I2"}
         reviewed_families = {"F1"}
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.blocks == []
         assert reviewed_people == {"I1", "I2"}
         assert reviewed_families == {"F1"}
@@ -1780,7 +1849,8 @@ class TestOrganizeFirstLevel:
         o.assign_levels()
         reviewed_people = set()
         reviewed_families = set()
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.get_people_ids() == [["I1"], []]
         assert res.get_family_ids() == [["F1"], ["F2"]]
         assert reviewed_people == {"I1"}
@@ -1799,7 +1869,8 @@ class TestOrganizeFirstLevel:
         o.assign_levels()
         reviewed_people = set()
         reviewed_families = {"F1"}
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.get_people_ids() == [["I1"]]
         assert res.get_family_ids() == [[]]
         assert reviewed_people == {"I1"}
@@ -1836,8 +1907,303 @@ class TestOrganizeFirstLevel:
         o.assign_levels()
         reviewed_people = set()
         reviewed_families = set()
-        res = o.organize_first_level(reviewed_people, reviewed_families)
+        levels = o.get_objects_by_level()
+        res = o.organize_first_level(levels, reviewed_people, reviewed_families)
         assert res.get_people_ids() == [["I4"], ["I1", "I2"], ["I3"]]
         assert res.get_family_ids() == [["F4"], ["F1"], ["F3"]]
         assert reviewed_people == {"I1", "I2", "I3", "I4"}
         assert reviewed_families == {"F1", "F3", "F4"}
+
+
+class TestOrganizeSubsequentRow:
+    def test_missing_level_returns_empty_row(self):
+        t = FamilyTree([], [], [])
+        o = Organizer(t)
+        res = o.organize_subsequent_row(2, Row(), {}, set(), set())
+        assert res.blocks == []
+
+    def test_empty_level_list_returns_empty_row(self):
+        t = FamilyTree([], [], [])
+        o = Organizer(t)
+        res = o.organize_subsequent_row(2, Row(), {2: []}, set(), set())
+        assert res.blocks == []
+
+    def test_raises_when_level_contains_families_not_people(self):
+        t = FamilyTree([], [Family(id="F1")], [])
+        o = Organizer(t)
+        with pytest.raises(ValueError) as ex:
+            o.organize_subsequent_row(2, Row(), {2: [o.families["F1"]]}, set(), set())
+        msg = str(ex.value)
+        assert "Expected to find people" in msg
+        assert "row '2'" in msg
+        assert "found families" in msg
+
+    def test_pulls_primary_children_of_previous_row_families(self):
+        # Two generations: I1/I2 marry via F1, their child I3 marries I4 via F2, and
+        # childless I5 is also a child of F1. organize_subsequent_row must pull both I3
+        # and I5 in as children of the previous row's F1, pair I3 with its spouse I4, and
+        # fold F2 in automatically without a separate standalone block.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("gm")], all_marriages=["F1"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["F2"]),
+                Person(
+                    id="I4",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("daughter-in-law")],
+                    all_marriages=["F2"],
+                ),
+                Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("granddaughter")]),
+            ],
+            [Family(id="F1"), Family(id="F2")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I3"),
+                Relationship(from_id="F1", to_id="I5"),
+                Relationship(from_id="I3", to_id="F2"),
+                Relationship(from_id="I4", to_id="F2"),
+            ],
+        )
+        o = Organizer(t)
+        reviewed_people = set()
+        reviewed_families = set()
+        levels = o.assign_levels()
+        all_levels = o.get_objects_by_level()
+        previous_row = o.organize_first_level(all_levels, reviewed_people, reviewed_families)
+        assert levels == {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4", "I5"], 3: ["F2"]}
+        res = o.organize_subsequent_row(2, previous_row, all_levels, reviewed_people, reviewed_families)
+        assert res.get_people_ids() == [["I3", "I4"], ["I5"]]
+        assert res.get_family_ids() == [["F2"], []]
+        assert reviewed_people == {"I1", "I2", "I3", "I4", "I5"}
+        assert reviewed_families == {"F1", "F2"}
+
+    def test_child_pulled_in_only_through_its_primary_family(self):
+        # I5 is a biological child of F1 (solid, listed second so it wins as primary) and
+        # was also adopted into F3 (dashed, listed first). Both F1 and F3 sit in the
+        # previous row. Only F1's entry for I5 should count; F3's should be filtered out
+        # by the primary_parent_family_id check, so I5 is not duplicated.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf1")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("gm1")], all_marriages=["F1"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
+                Person(id="I8", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf2")], all_marriages=["F3"]),
+                Person(id="I9", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("gm2")], all_marriages=["F3"]),
+                Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("adopted-daughter")]),
+            ],
+            [Family(id="F1"), Family(id="F3")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I3"),
+                Relationship(from_id="I8", to_id="F3"),
+                Relationship(from_id="I9", to_id="F3"),
+                Relationship(from_id="F3", to_id="I5"),
+                Relationship(from_id="F1", to_id="I5", attrs={"style": "dashed"}),
+            ],
+        )
+        o = Organizer(t)
+        assert o.people["I5"].primary_parent_family_id == "F3"
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        all_levels = o.get_objects_by_level()
+        previous_row = o.organize_first_level(all_levels, reviewed_people, reviewed_families)
+        assert previous_row.get_family_ids() == [["F1"], ["F3"]]
+        res = o.organize_subsequent_row(2, previous_row, all_levels, reviewed_people, reviewed_families)
+        assert res.get_people_ids() == [["I3"], ["I5"]]
+        assert reviewed_people == {"I1", "I2", "I3", "I5", "I8", "I9"}
+
+    def test_child_of_second_previous_family_already_reviewed_via_spouse_is_skipped(self):
+        # I3 (child of F1) marries I4 (child of F3) via F2. Both F1 and F3 sit in the
+        # previous row. Processing I3 first pulls I4 in as a spouse and marks it reviewed,
+        # so when the children loop reaches I4 (child of F3) it must be skipped rather than
+        # re-added as a duplicate/empty block.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf1")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("gm1")], all_marriages=["F1"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["F2"]),
+                Person(id="I8", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf2")], all_marriages=["F3"]),
+                Person(id="I9", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("gm2")], all_marriages=["F3"]),
+                Person(
+                    id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")], all_marriages=["F2"]
+                ),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I3"),
+                Relationship(from_id="I8", to_id="F3"),
+                Relationship(from_id="I9", to_id="F3"),
+                Relationship(from_id="F3", to_id="I4"),
+                Relationship(from_id="I3", to_id="F2"),
+                Relationship(from_id="I4", to_id="F2"),
+            ],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        all_levels = o.get_objects_by_level()
+        previous_row = o.organize_first_level(all_levels, reviewed_people, reviewed_families)
+        assert previous_row.get_family_ids() == [["F1"], ["F3"]]
+        res = o.organize_subsequent_row(2, previous_row, all_levels, reviewed_people, reviewed_families)
+        assert res.get_people_ids() == [["I3", "I4"]]
+        assert res.get_family_ids() == [["F2"]]
+        assert reviewed_people == {"I1", "I2", "I3", "I4", "I8", "I9"}
+        assert reviewed_families == {"F1", "F2", "F3"}
+
+    def test_person_not_a_child_of_any_previous_family_is_included_via_person_loop(self):
+        # I5 has no connection to F1 at all (not one of its children, no marriage). It can
+        # only end up in the result through the trailing sorted_people loop that covers
+        # everyone at this level not already picked up as a child of the previous row.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("father")], all_marriages=["F2"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["F3"]),
+                Person(
+                    id="I4",
+                    fillcolor=PersonWrapper.M_COLOR,
+                    text_lines=[TextLine("gf-in-law")],
+                    all_marriages=["F4"],
+                ),
+                Person(
+                    id="I5",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("mother-in-law")],
+                    all_marriages=["F5"],
+                ),
+                Person(
+                    id="I6",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("daughter")],
+                    all_marriages=["F3"],
+                ),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4"), Family(id="F5")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="I2", to_id="F2"),
+                Relationship(from_id="F2", to_id="I3"),
+                Relationship(from_id="I3", to_id="F3"),
+                Relationship(from_id="I4", to_id="F4"),
+                Relationship(from_id="F4", to_id="I5"),
+                Relationship(from_id="I5", to_id="F5"),
+                Relationship(from_id="F5", to_id="I6"),
+                Relationship(from_id="I6", to_id="F3"),
+            ],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        levels = o.get_objects_by_level()
+        reviewed_people = set()
+        reviewed_families = set()
+        previous_row = o.organize_first_level(levels, reviewed_people, reviewed_families)
+        res = o.organize_subsequent_row(2, previous_row, levels, reviewed_people, reviewed_families)
+        assert res.get_people_ids() == [["I2"], ["I5"]]
+        assert res.get_family_ids() == [["F2"], ["F5"]]
+        assert reviewed_people == {"I1", "I2", "I4", "I5"}
+        assert reviewed_families == {"F1", "F2", "F4", "F5"}
+
+    def test_extra_family_in_next_level_creates_standalone_block(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("gf")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("father")], all_marriages=["F2"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["F3"]),
+                Person(
+                    id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("daughter")], all_marriages=["F3"]
+                ),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="I2", to_id="F2"),
+                Relationship(from_id="F2", to_id="I3"),
+                Relationship(from_id="I3", to_id="F3"),
+                Relationship(from_id="F4", to_id="I4"),
+                Relationship(from_id="I4", to_id="F3"),
+            ],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        levels = o.get_objects_by_level()
+        previous_row = o.organize_first_level(levels, reviewed_people, reviewed_families)
+        res = o.organize_subsequent_row(2, previous_row, levels, reviewed_people, reviewed_families)
+        assert res.get_people_ids() == [["I2"], []]
+        assert res.get_family_ids() == [["F2"], ["F4"]]
+        assert reviewed_people == {"I1", "I2"}
+        assert reviewed_families == {"F1", "F2", "F4"}
+
+    def test_already_reviewed_family_in_next_level_is_not_duplicated(self):
+        t = FamilyTree(
+            [
+                Person(
+                    id="I1",
+                    fillcolor=PersonWrapper.M_COLOR,
+                    text_lines=[TextLine("parent")],
+                    all_marriages=["F1"],
+                ),
+                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")], all_marriages=["F2"]),
+            ],
+            [Family(id="F1"), Family(id="F2")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="I2", to_id="F2"),
+            ],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        levels = o.get_objects_by_level()
+        reviewed_people = set()
+        reviewed_families = set()
+        previous_row = o.organize_first_level(levels, reviewed_people, reviewed_families)
+        reviewed_families.add("F2")
+        res = o.organize_subsequent_row(2, previous_row, levels, reviewed_people, reviewed_families)
+        assert res.get_people_ids() == [["I2"]]
+        assert res.get_family_ids() == [[]]
+        assert reviewed_people == {"I1", "I2"}
+        assert reviewed_families == {"F1", "F2"}
+
+    def test_remaining_people_are_sorted_by_gender_then_name(self):
+        # Mirrors organize_first_level's sorting behavior: people not swept in as children
+        # of the previous row still come out ordered by sorting_key, not input order.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Zoe")], all_marriages=["F2"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Bob")], all_marriages=["F3"]),
+                Person(id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Albert")], all_marriages=["F4"]),
+                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("adopted child")]),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="I2", to_id="F2"),
+                Relationship(from_id="F2", to_id="I5"),
+                Relationship(from_id="I3", to_id="F3"),
+                Relationship(from_id="F3", to_id="I5"),
+                Relationship(from_id="I4", to_id="F4"),
+                Relationship(from_id="F4", to_id="I5"),
+            ],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        levels = o.get_objects_by_level()
+        first_row = o.organize_first_level(levels, reviewed_people, reviewed_families)
+        res = o.organize_subsequent_row(2, first_row, levels, reviewed_people, reviewed_families)
+        assert res.get_people_ids() == [["I2"], ["I4"], ["I3"]]
+        assert res.get_family_ids() == [["F2"], ["F4"], ["F3"]]

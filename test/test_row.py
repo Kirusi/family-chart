@@ -79,6 +79,26 @@ class TestGetPeopleIds:
         assert row.get_people_ids() == [["I1", "I2"], ["I3"]]
 
 
+class TestGetPeopleCount:
+    def test_empty_row_returns_zero(self):
+        row = Row()
+        assert row.get_people_count() == 0
+
+    def test_counts_people_across_all_blocks(self):
+        block1 = Block(make_person_w("I1"))
+        block1.add_person(make_person_w("I2"))
+        block2 = Block(make_person_w("I3"))
+        row = Row()
+        row.add_block(block1)
+        row.add_block(block2)
+        assert row.get_people_count() == 3
+
+    def test_counts_block_with_no_people(self):
+        row = Row()
+        row.add_block(Block())
+        assert row.get_people_count() == 0
+
+
 class TestGetFamilies:
     def test_empty_row_returns_empty_list(self):
         row = Row()
@@ -124,3 +144,25 @@ class TestGetFamilyIds:
         row.add_block(block1)
         row.add_block(block2)
         assert row.get_family_ids() == [["F1", "F2"], ["F3"]]
+
+
+class TestGetFamilyCount:
+    def test_empty_row_returns_zero(self):
+        row = Row()
+        assert row.get_family_count() == 0
+
+    def test_counts_families_across_all_blocks(self):
+        block1 = Block(make_person_w("I1"))
+        block1.add_family(make_family_w("F1"))
+        block1.add_family(make_family_w("F2"))
+        block2 = Block(make_person_w("I2"))
+        block2.add_family(make_family_w("F3"))
+        row = Row()
+        row.add_block(block1)
+        row.add_block(block2)
+        assert row.get_family_count() == 3
+
+    def test_counts_block_with_no_families(self):
+        row = Row()
+        row.add_block(Block(make_person_w("I1")))
+        assert row.get_family_count() == 0

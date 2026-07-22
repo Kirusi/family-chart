@@ -27,6 +27,11 @@ testpaths = [
 
 [tool.coverage.run]
 branch = true
+source = ["family_chart"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
 
 [tool.ruff]
 line-length = 120
