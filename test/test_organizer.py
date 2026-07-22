@@ -7,6 +7,7 @@ from family_chart.organizer import BlockQueueItem, Organizer, PersonWrapper
 from family_chart.person import Person
 from family_chart.relationship import Relationship
 from family_chart.text_line import TextLine
+from family_chart.utils import Utils
 
 
 def test_parse_color_unknown():
@@ -18,37 +19,6 @@ def test_parse_color_none():
 
 
 class TestConstructor:
-    def test_three_families_two_parents_no_relationships_unused_family(self):
-        t = FamilyTree(
-            [
-                Person(
-                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1", "F2"]
-                ),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
-            ],
-            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
-            [],
-        )
-        with pytest.raises(ValueError) as ex:
-            _ = Organizer(t)
-        msg = str(ex)
-        assert "'F3'" in msg
-        assert "not referenced" in msg
-
-    def test_one_family_one_parent_only_relationships(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-            ],
-            [Family(id="F1")],
-            [Relationship(from_id="I1", to_id="F1")],
-        )
-        with pytest.raises(ValueError) as ex:
-            _ = Organizer(t)
-        msg = str(ex)
-        assert "'F1'" in msg
-        assert "not referenced in any marriages" in msg
-
     def test_unknown_family_used_in_all_marriages_and_in_relationships(self):
         t = FamilyTree(
             [
@@ -59,30 +29,12 @@ class TestConstructor:
                 Relationship(from_id="I1", to_id="F1"),
             ],
         )
-        try:
+        with pytest.raises(ValueError) as ex:
             _ = Organizer(t)
-            raise AssertionError("No Exception was raised")
-        except ValueError as ex:
-            msg = str(ex)
+        msg = str(ex)
         assert "from 'I1'" in msg
         assert "to 'F1'" in msg
         assert "does not reference any known family" in msg
-
-    def test_unknown_marriage(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-            ],
-            [Family(id="F1")],
-            [],
-        )
-        try:
-            _ = Organizer(t)
-            raise AssertionError("No Exception was raised")
-        except ValueError as ex:
-            msg = str(ex)
-        assert "Family 'F1'" in msg
-        assert "not referenced in any marriages" in msg
 
     def test_unknown_family_used_only_in_relationships(self):
         t = FamilyTree(
@@ -109,11 +61,9 @@ class TestConstructor:
             [Family("F1")],
             [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="F1", to_id="I2")],
         )
-        try:
+        with pytest.raises(ValueError) as ex:
             _ = Organizer(t)
-            raise AssertionError("No Exception was raised")
-        except ValueError as ex:
-            msg = str(ex)
+        msg = str(ex)
         assert "from 'F1'" in msg
         assert "to 'I2'" in msg
         assert "not listed among person nodes" in msg
@@ -126,11 +76,9 @@ class TestConstructor:
             [Family("F1")],
             [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
         )
-        try:
+        with pytest.raises(ValueError) as ex:
             _ = Organizer(t)
-            raise AssertionError("No Exception was raised")
-        except ValueError as ex:
-            msg = str(ex)
+        msg = str(ex)
         assert "from 'I2'" in msg
         assert "to 'F1'" in msg
         assert "not listed among person nodes" in msg
@@ -147,8 +95,7 @@ class TestAssignLevels:
     def test_empty_tree(self):
         t = FamilyTree([], [], [])
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {}
 
     def test_empty_tree_without_assign(self):
@@ -161,8 +108,7 @@ class TestAssignLevels:
     def test_one_person_without_connections(self):
         t = FamilyTree([Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")])], [], [])
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["I1"]}
 
     def test_two_people_without_connections(self):
@@ -175,23 +121,12 @@ class TestAssignLevels:
             [],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
-        assert res == {0: ["I1", "I2"]}
-
-    def test_two_people_without_connections_different_order(self):
-        t = FamilyTree(
-            [
-                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-            ],
-            [],
-            [],
-        )
-        o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
-        assert res == {0: ["I1", "I2"]}
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        msg = str(ex)
+        payload = Utils.extract_json(msg)
+        assert payload["unassigned_people"] == ["I2"]
+        assert payload["unassigned_families"] == []
 
     def test_three_people_without_connections(self):
         t = FamilyTree(
@@ -204,9 +139,12 @@ class TestAssignLevels:
             [],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
-        assert res == {0: ["I1", "I2", "I3"]}
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        msg = str(ex)
+        payload = Utils.extract_json(msg)
+        assert payload["unassigned_people"] == ["I2", "I3"]
+        assert payload["unassigned_families"] == []
 
     def test_one_family_one_parent_no_relationships(self):
         t = FamilyTree(
@@ -217,8 +155,7 @@ class TestAssignLevels:
             [],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["I1"], 1: ["F1"]}
 
     def test_one_family_two_parents_no_relationships(self):
@@ -231,8 +168,7 @@ class TestAssignLevels:
             [],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["I1", "I2"], 1: ["F1"]}
 
     def test_three_families_two_parents_no_relationships(self):
@@ -250,8 +186,7 @@ class TestAssignLevels:
             [],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["I1", "I2"], 1: ["F1", "F2", "F3"]}
 
     def test_one_family_one_parent(self):
@@ -263,8 +198,7 @@ class TestAssignLevels:
             [Relationship(from_id="I1", to_id="F1")],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["I1"], 1: ["F1"]}
 
     def test_one_family_two_parents(self):
@@ -277,8 +211,7 @@ class TestAssignLevels:
             [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["I1", "I2"], 1: ["F1"]}
 
     def test_one_family_two_parents_unused_marriages(self):
@@ -295,8 +228,7 @@ class TestAssignLevels:
             [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["I1", "I2"], 1: ["F1"]}
 
     def test_two_unrelated_families_four_parents_three_marriages(self):
@@ -319,9 +251,12 @@ class TestAssignLevels:
             ],
         )
         o = Organizer(t)
-        o.assign_levels()
-        res = o.serialize_by_level()
-        assert res == {0: ["I1", "I2", "I3", "I4"], 1: ["F1", "F2", "F3"]}
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        msg = str(ex)
+        payload = Utils.extract_json(msg)
+        assert payload["unassigned_people"] == ["I3", "I4"]
+        assert payload["unassigned_families"] == ["F3"]
 
     def test_two_families_three_generations(self):
         people = [
@@ -350,14 +285,46 @@ class TestAssignLevels:
         ]
         expected = {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4", "I5"], 3: ["F2"], 4: ["I6", "I7"]}
         # Test that we can parse tree starting with any node
-        for pos in range(0, len(people)):
+        for pos in range(len(people)):
             people_clone = [*people]
             moved = people_clone.pop(pos)
             people_clone.insert(0, moved)
             o = Organizer(FamilyTree(people_clone, families, relationships))
-            o.assign_levels()
-            res = o.serialize_by_level()
+            res = o.assign_levels()
             assert res == expected
+
+    def test_call_assign_levels_twice(self):
+        people = [
+            Person(
+                id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
+            ),
+            Person(
+                id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
+            ),
+            Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2"]),
+            Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
+            Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
+            Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
+            Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
+        ]
+        families = [Family(id="F1"), Family(id="F2")]
+        relationships = [
+            Relationship(from_id="I1", to_id="F1"),
+            Relationship(from_id="I2", to_id="F1"),
+            Relationship(from_id="F1", to_id="I3"),
+            Relationship(from_id="F1", to_id="I5"),
+            Relationship(from_id="I3", to_id="F2"),
+            Relationship(from_id="I4", to_id="F2"),
+            Relationship(from_id="F2", to_id="I6"),
+            Relationship(from_id="F2", to_id="I7"),
+        ]
+        expected = {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4", "I5"], 3: ["F2"], 4: ["I6", "I7"]}
+        # Verify assign_levels() is idempotent when called a second time
+        o = Organizer(FamilyTree(people, families, relationships))
+        res = o.assign_levels()
+        assert res == expected
+        res = o.assign_levels()
+        assert res == expected
 
     def test_three_generations_with_many_marriages(self):
         people = [
@@ -405,14 +372,13 @@ class TestAssignLevels:
             4: ["I6", "I7"],
         }
         # Test that we can parse tree starting with any node
-        for pos in range(0, len(people)):
+        for pos in range(len(people)):
             # print(f"Test position {pos}")  # noqa: T201
             people_clone = [*people]
             moved = people_clone.pop(pos)
             people_clone.insert(0, moved)
             o = Organizer(FamilyTree(people_clone, families, relationships))
-            o.assign_levels()
-            res = o.serialize_by_level()
+            res = o.assign_levels()
             assert res == expected
 
     def test_uncle_marries_niece(self):
@@ -442,11 +408,10 @@ class TestAssignLevels:
             Relationship(from_id="N", to_id="FAN"),
         ]
         o = Organizer(FamilyTree(people, families, relationships))
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["G"], 1: ["FG"], 2: ["A", "B"], 3: ["FA", "FB"], 4: ["N"], 5: ["FAN"]}
 
-    def test_uncle_marries_niece2(self):
+    def test_uncle_marries_niece_without_own_second_marriage(self):
         # G has two children, A (uncle) and B. B's child N (niece) marries A.
         # This closes a cycle in the person/family graph (G -> A -> N -> B -> G). A's level
         # is first assigned via its blood relationship to G (sibling of B), and that
@@ -470,17 +435,16 @@ class TestAssignLevels:
             Relationship(from_id="N", to_id="FAN"),
         ]
         o = Organizer(FamilyTree(people, families, relationships))
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {0: ["G"], 1: ["FG"], 2: ["A", "B"], 3: ["FB"], 4: ["N"], 5: ["FAN"]}
 
     def test_grandfather_marries_grandniece(self):
-        # P has two children, Gf (grandfather) and S (sibling). S's child C has child D
+        # P has two children, Gf (grandfather) and S (sibling). S's child N has child GN
         # (Gf's grandniece), who marries Gf. This closes a cycle spanning three generations
-        # (P -> Gf -> D -> C -> S -> P), a wider gap than test_uncle_marries_niece. Gf's level
+        # (P -> Gf -> GN -> N -> S -> P), a wider gap than test_uncle_marries_niece. Gf's level
         # is locked in via its blood relationship to P as soon as it is assigned, so the much
-        # deeper traversal down S -> C -> D cannot pull Gf down when it reaches the marriage
-        # to D.
+        # deeper traversal down S -> N -> GN cannot pull Gf down when it reaches the marriage
+        # to GN.
         people = [
             Person(id="P", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("root")], all_marriages=["FP"]),
             Person(
@@ -509,8 +473,7 @@ class TestAssignLevels:
             Relationship(from_id="GN", to_id="FGN"),
         ]
         o = Organizer(FamilyTree(people, families, relationships))
-        o.assign_levels()
-        res = o.serialize_by_level()
+        res = o.assign_levels()
         assert res == {
             0: ["P"],
             1: ["FP"],
@@ -521,6 +484,114 @@ class TestAssignLevels:
             6: ["GN"],
             7: ["FGN"],
         }
+
+    def test_family_without_parents_at_top_of_hierarchy(self):
+        # The constructor always registers whoever references a family in all_marriages
+        # as one of its parents, so a family can't naturally end up with an empty parents
+        # list. F0 is only referenced via I1 (F0 -> I1 makes I1 a child of F0, not a
+        # parent) purely to satisfy the "family must be referenced" check; its parents
+        # list is cleared afterward to model a family whose parents are unknown (e.g. a
+        # Gramps export that stops short of the grandparents). This exercises the branch
+        # in assign_levels_for_source where a family node has no parents to climb further
+        # and only its children are traversed.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(
+                    id="I2",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("woman")],
+                    all_marriages=["F1"],
+                ),
+            ],
+            [Family(id="F0"), Family(id="F1")],
+            [
+                Relationship(from_id="F0", to_id="I1"),
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+            ],
+        )
+        o = Organizer(t)
+        o.families["F0"].parents = []
+        res = o.assign_levels()
+        assert res == {0: ["F0"], 1: ["I1", "I2"], 2: ["F1"]}
+
+    def test_one_family_one_parent_only_relationships(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1")],
+        )
+        o = Organizer(t)
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        msg = str(ex)
+        payload = Utils.extract_json(msg)
+        assert payload["unassigned_people"] == []
+        assert payload["unassigned_families"] == ["F1"]
+
+    def test_three_families_two_parents_no_relationships_unused_family(self):
+        t = FamilyTree(
+            [
+                Person(
+                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1", "F2"]
+                ),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
+            [],
+        )
+        o = Organizer(t)
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        msg = str(ex)
+        payload = Utils.extract_json(msg)
+        assert payload["unassigned_people"] == []
+        assert payload["unassigned_families"] == ["F3"]
+
+
+class TestValidateFinalAssignments:
+    def test_gap_in_levels_raises_value_error(self):
+        # Levels 0 and 2 are populated but level 1 is left empty, simulating a broken
+        # assignment that validate_final_assignments is meant to catch.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
+            ],
+            [],
+            [],
+        )
+        o = Organizer(t)
+        o.people["I1"].level = 0
+        o.people["I2"].level = 2
+        with pytest.raises(ValueError) as ex:
+            o.validate_final_assignments()
+        msg = str(ex.value)
+        assert "No nodes are placed at level 1" in msg
+        assert "Level structure is" in msg
+
+    def test_mixed_node_types_at_same_level_raises_value_error(self):
+        # Force a person and a family onto the same level to simulate a broken assignment;
+        # this can't happen through normal traversal since person and family levels always
+        # differ by at least one hop.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1")],
+        )
+        o = Organizer(t)
+        o.people["I1"].level = 0
+        o.families["F1"].level = 0
+        with pytest.raises(ValueError) as ex:
+            o.validate_final_assignments()
+        msg = str(ex.value)
+        assert "Nodes at level '0' are expected to be of 'person' type" in msg
+        assert "Actual nodes are" in msg
 
 
 class TestFindOtherParent:
@@ -932,7 +1003,7 @@ class TestOrderMarriages:
         assert reviewed_people == {"I1", "I3"}
         assert reviewed_families == {"F1", "F2"}
 
-    def test_multiple_marriages_skips_already_reviewed_family2(self):
+    def test_multiple_marriages_skips_already_reviewed_family_f2(self):
         t = FamilyTree(
             [
                 Person(
@@ -991,9 +1062,9 @@ class TestOrderMarriages:
         assert reviewed_families == {"F1", "F2"}
 
     def test_cycles_in_marriages(self):
-        # F2 is pre-marked reviewed (and its other parent I3 pre-marked reviewed too), so
-        # that marriage must be skipped without adding anything, and the loop must still
-        # continue on to F3 afterwards instead of stopping early.
+        # I1 and I4 share marriage F4, I2 and I3 share marriage F2, alongside I1/I2's F1
+        # and I3/I4's F3 - order_marriages must handle these criss-crossing marriages
+        # without stalling or double-processing.
         t = FamilyTree(
             [
                 Person(
@@ -1073,7 +1144,7 @@ class TestOrderMarriages:
         assert reviewed_people == {"I1"}
         assert reviewed_families == set()
 
-    def test_marriage_family_at_unexpected_level_is_filtered_out2(self):
+    def test_marriage_family_at_unexpected_level_is_filtered_out_alongside_valid_marriage(self):
         # A marriage's family only diverges from person level + 1 under malformed level
         # assignment; force that state directly to exercise the level-mismatch filter.
         t = FamilyTree(
@@ -1385,9 +1456,10 @@ class TestOrderMarriagesFromQueue:
         assert reviewed_people == {"I1", "I2"}
         assert reviewed_families == {"F1", "F2"}
 
-    def test_unknown_person_in_queue_raises_key_error(self):
-        # person_w is never actually None here: a missing id raises KeyError on lookup
-        # before the "is None" check below it can ever fire.
+    def test_unknown_person_in_queue_raises_value_error(self):
+        # self.people.get(person_id) returns None rather than raising for a missing id,
+        # so this test exercises that "is None" guard directly with an id that was
+        # never registered in the first place.
         t = FamilyTree(
             [Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")])],
             [],
@@ -1399,8 +1471,11 @@ class TestOrderMarriagesFromQueue:
         reviewed_people = {"I1"}
         reviewed_families = set()
         queue = [BlockQueueItem(person_id="ghost", family_id="F1", direction="R")]
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as ex:
             o.order_marriages_from_queue(block, 1, queue, reviewed_people, reviewed_families)
+        msg = str(ex)
+        assert "Person 'ghost'" in msg
+        assert "unknown" in msg
 
     def test_missing_person_referenced_in_queue_raises_value_error(self):
         # self.people[person_id] only ever yields None if the dict itself is corrupted;
@@ -1590,3 +1665,179 @@ class TestOrderMarriagesFromQueue:
         assert [f.id for f in block.families] == ["F0", "F1"]
         assert reviewed_people == {"I1", "I2", "I3"}
         assert reviewed_families == {"F0", "F1"}
+
+
+class TestOrganizeFirstLevel:
+    def test_empty_tree_returns_empty_list(self):
+        t = FamilyTree([], [], [])
+        o = Organizer(t)
+        reviewed_people = set()
+        reviewed_families = set()
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert res == []
+        assert reviewed_people == set()
+        assert reviewed_families == set()
+
+    def test_single_unmarried_person_with_no_level_one_at_all(self):
+        # There is no family anywhere in the tree, so levels.get(1) is missing entirely;
+        # this exercises the default-to-empty-list guard on that lookup.
+        t = FamilyTree(
+            [Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")])],
+            [],
+            [],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert [[p.id for p in b.people] for b in res] == [["I1"]]
+        assert [[f.id for f in b.families] for b in res] == [[]]
+        assert reviewed_people == {"I1"}
+        assert reviewed_families == set()
+
+    def test_families_at_level_zero_creates_one_block_per_family(self):
+        # F0 sits above I1/I2 with its parents list cleared, so level 0 is made up of
+        # families rather than people, exercising the FamilyWrapper branch.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F0"), Family(id="F1")],
+            [
+                Relationship(from_id="F0", to_id="I1"),
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+            ],
+        )
+        o = Organizer(t)
+        o.families["F0"].parents = []
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert [[p.id for p in b.people] for b in res] == [[]]
+        assert [[f.id for f in b.families] for b in res] == [["F0"]]
+        assert reviewed_people == set()
+        assert reviewed_families == {"F0"}
+
+    def test_couple_at_level_zero_is_a_single_block(self):
+        # I1 and I2 are spouses in F1, both at level 0. order_marriages pulls the family
+        # in on I1's turn, so no separate block should be produced for F1 at level 1.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert [[p.id for p in b.people] for b in res] == [["I1", "I2"]]
+        assert [[f.id for f in b.families] for b in res] == [["F1"]]
+        assert reviewed_people == {"I1", "I2"}
+        assert reviewed_families == {"F1"}
+
+    def test_already_reviewed_person_at_level_zero_is_skipped(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = {"I1", "I2"}
+        reviewed_families = {"F1"}
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert res == []
+        assert reviewed_people == {"I1", "I2"}
+        assert reviewed_families == {"F1"}
+
+    def test_extra_family_in_level_1(self):
+        # I3 is a child of F2. The trailing "for family_w in level1" loop must then create a standalone block for it.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("parent")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("boy")], all_marriages=["F3"]),
+                Person(id="I3", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("girl")], all_marriages=["F3"]),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="F2", to_id="I3"),
+            ],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert [[p.id for p in b.people] for b in res] == [["I1"], []]
+        assert [[f.id for f in b.families] for b in res] == [["F1"], ["F2"]]
+        assert reviewed_people == {"I1"}
+        assert reviewed_families == {"F1", "F2"}
+
+    def test_already_reviewed_level_one_family_is_not_duplicated(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("parent")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="F1", to_id="I2")],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = {"F1"}
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert [[p.id for p in b.people] for b in res] == [["I1"]]
+        assert [[f.id for f in b.families] for b in res] == [[]]
+        assert reviewed_people == {"I1"}
+        assert reviewed_families == {"F1"}
+
+    def test_multiple_people_at_level_zero_are_sorted_by_gender_then_name(self):
+        # I1 (man, "Bob") is married to I2 (woman, "Zoe").
+        # I3 (woman, "Amy") and I4 (man, "Albert) are unmarried to each
+        # other and only connected through an adopted child's three origins, so each
+        # produces its own block. They're listed in mixed of the expected output order
+        # to confirm organize_first_level sorts by sorting_key rather than input order.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Bob")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Zoe")], all_marriages=["F1"]),
+                Person(id="I3", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Amy")], all_marriages=["F3"]),
+                Person(id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Albert")], all_marriages=["F4"]),
+                Person(
+                    id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]
+                ),  # adopted by all families
+            ],
+            [Family(id="F1"), Family(id="F3"), Family(id="F4")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I5"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="I3", to_id="F3"),
+                Relationship(from_id="F3", to_id="I5"),
+                Relationship(from_id="I4", to_id="F4"),
+                Relationship(from_id="F4", to_id="I5"),
+            ],
+        )
+        o = Organizer(t)
+        o.assign_levels()
+        reviewed_people = set()
+        reviewed_families = set()
+        res = o.organize_first_level(reviewed_people, reviewed_families)
+        assert [[p.id for p in b.people] for b in res] == [["I4"], ["I1", "I2"], ["I3"]]
+        assert [[f.id for f in b.families] for b in res] == [["F4"], ["F1"], ["F3"]]
+        assert reviewed_people == {"I1", "I2", "I3", "I4"}
+        assert reviewed_families == {"F1", "F3", "F4"}

@@ -16,6 +16,11 @@ def make_family_w(family_id: str) -> FamilyWrapper:
 
 
 class TestConstructor:
+    def test_default_constructor(self):
+        block = Block()
+        assert block.people == []
+        assert block.families == []
+
     def test_starts_with_single_person_and_no_families(self):
         person_w = make_person_w("I1")
         block = Block(person_w)

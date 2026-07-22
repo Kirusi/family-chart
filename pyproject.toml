@@ -53,13 +53,15 @@ select = [
     "I", # isort
     "ICN", # flake8-import-conventions
     "LOG",
+    "PIE", # pytest
     "PLC", # pylint rules
+    "PT", # pytest
     "Q", # Quotes
     "SIM", # flake8-simplify
     "T", # flake8-print
     "UP", # pyupgrade
 ]
-ignore = ["D104", "D203", "D212"]
+ignore = ["D104", "D203", "D212", "PT011"]
 
 [tool.ruff.lint.per-file-ignores]
 "test/*" = ["D"]

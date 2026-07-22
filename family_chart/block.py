@@ -7,9 +7,14 @@ from family_chart.person_wrapper import PersonWrapper
 class Block:
     """Block is a layout unit that groups one person with all their marriages, spouses and marriages of spouses."""
 
-    def __init__(self, person_w: PersonWrapper):
+    people: list[PersonWrapper]
+    families: list[FamilyWrapper]
+
+    def __init__(self, person_w: PersonWrapper | None = None):
         """Default constructor."""
-        self.people = [person_w]
+        self.people = []
+        if person_w:
+            self.people.append(person_w)
         self.families = []
 
     def add_person(self, new_person_w: PersonWrapper):

@@ -11,7 +11,7 @@ class TestFindPrimaryParentFamilyId:
     def test_no_origins_does_not_set_attribute(self):
         person_w = make_person_w()
         person_w.find_primary_parent_family_id()
-        assert not hasattr(person_w, "primary_parent_family_id")
+        assert person_w.primary_parent_family_id is None
 
     def test_single_origin_not_adopted(self):
         person_w = make_person_w()
