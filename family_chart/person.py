@@ -14,3 +14,4 @@ class Person:
     photo: str | None = None
     text_lines: list[TextLine] = field(default_factory=list)
     all_marriages: list[str] = field(default_factory=list)
+    source: str = ""

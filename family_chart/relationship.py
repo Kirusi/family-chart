@@ -10,3 +10,4 @@ class Relationship:
     from_id: str
     to_id: str
     attrs: dict[str, str] | None = None
+    source: str = ""

@@ -2344,3 +2344,32 @@ class TestOrganizeTree:
         assert res[0].get_family_ids() == [["F0"]]
         assert res[1].get_people_ids() == [["I1", "I2"]]
         assert res[1].get_family_ids() == [["F1"]]
+
+    def test_previous_row_carries_forward_to_drive_next_row_child_order(self):
+        # organize_tree sets previous_row = current_row at the end of each loop iteration, so the
+        # row just built is what organize_row consults to pull the next row's children in birth-
+        # family order. I3/I4 are both children of F1, listed on F1 in reverse of their sorting_key
+        # order (M sorts before W). If previous_row were not carried forward, organize_row would
+        # fall back to sorting first_level by sorting_key, producing [I3, I4] instead of [I4, I3].
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Adam")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Beth")], all_marriages=["F1"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Carl")]),
+                Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Dana")]),
+            ],
+            [Family(id="F1")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I4"),
+                Relationship(from_id="F1", to_id="I3"),
+            ],
+        )
+        o = Organizer(t)
+        res = o.organize_tree()
+        assert len(res) == 2
+        assert res[0].get_people_ids() == [["I1", "I2"]]
+        assert res[0].get_family_ids() == [["F1"]]
+        assert res[1].get_people_ids() == [["I4"], ["I3"]]
+        assert res[1].get_family_ids() == [[], []]
