@@ -1,14 +1,17 @@
 """Determines locations for person and family nodes."""
 
+import json
 from collections import defaultdict
 from dataclasses import dataclass
+from typing import Any
 
+from family_chart import constants
 from family_chart.block import Block
-from family_chart.constants import MIN_LEVEL
 from family_chart.family_tree import FamilyTree
 from family_chart.family_wrapper import FamilyWrapper
 from family_chart.origin_wrapper import OriginWrapper
 from family_chart.person_wrapper import PersonWrapper
+from family_chart.row import Row
 
 
 @dataclass
@@ -38,20 +41,13 @@ class Organizer:
         for family in family_tree.families:
             id = family.id
             self.families[id] = FamilyWrapper(family)
-        referenced_families = set()
         for person_w in self.people.values():
             verified_marriages = []
             if person_w.person.all_marriages:
                 for marriage_id in person_w.person.all_marriages:
                     if marriage_id in self.families:
                         verified_marriages.append(marriage_id)
-                        referenced_families.add(marriage_id)
             person_w.person.all_marriages = verified_marriages
-        for family_id in self.families:
-            if family_id not in referenced_families:
-                raise ValueError(
-                    f"Family '{family_id}' is provided in GraphViz file, but not referenced in any marriages"
-                )
         for relationship in self.family_tree.relationships:
             from_id = relationship.from_id
             to_id = relationship.to_id
@@ -96,25 +92,14 @@ class Organizer:
                 ):
                     family_w.parents = [second_parent_id, first_parent_id]
 
-    def assign_levels(self) -> None:  # noqa: C901
+    def assign_levels(self) -> dict[str, list[str]]:
         """Assign levels to all families and people in the tree."""
         if self.people:
-            while True:
-                start_id = None
-                for person_w in self.people.values():
-                    if person_w.level == MIN_LEVEL:
-                        start_id = person_w.id
-                        break
-                if start_id:
-                    self.assign_levels_for_source(start_id)
-                else:
-                    break
-            for person_w in self.people.values():
-                if person_w.level == MIN_LEVEL:
-                    raise RuntimeError(f"Person node id '{person_w.id}' was not assigned a level")  # pragma: no cover
-            for family_w in self.families.values():
-                if family_w.id == MIN_LEVEL:
-                    raise RuntimeError(f"Family node id '{family_w.id}' was not assigned a level")  # pragma: no cover
+            start_id = [*self.people.values()][0].id
+            self.assign_levels_for_source(start_id)
+
+            self.validate_preliminary_assignments()
+            # Adjust levels to start with zero
             min_level_people = min(self.people.values(), key=lambda obj: obj.level).level
             min_level_families = 0
             if self.families:
@@ -125,6 +110,64 @@ class Organizer:
             for family_w in self.families.values():
                 family_w.level -= min_level
 
+            serialized_levels = self.validate_final_assignments()
+            return serialized_levels
+        return {}
+
+    def validate_preliminary_assignments(self):
+        """Check whether some people or families were left unassigned."""
+        unassigned_people = []
+        assigned_people = []
+        for person_w in self.people.values():
+            if person_w.level == constants.MIN_LEVEL:
+                unassigned_people.append(person_w.id)
+            else:
+                assigned_people.append(person_w.id)
+        unassigned_families = []
+        assigned_families = []
+        for family_w in self.families.values():
+            if family_w.level == constants.MIN_LEVEL:
+                unassigned_families.append(family_w.id)
+            else:
+                assigned_families.append(family_w.id)
+        if unassigned_people or unassigned_families:
+            results = {
+                "unassigned_people": sorted(unassigned_people),
+                "unassigned_families": sorted(unassigned_families),
+                "assigned_people": sorted(assigned_people),
+                "assigned_families": sorted(assigned_families),
+            }
+            raise ValueError(f"Some people and or families were not assigned a level. Details: {json.dumps(results)}")
+
+    def validate_final_assignments(self) -> dict[str, list[str]]:
+        """Check that levels are contiguous and homogenous."""
+        all_levels = defaultdict(list)
+        for person_w in self.people.values():
+            level = person_w.level
+            all_levels[level].append(person_w)
+        for family_w in self.families.values():
+            level = family_w.level
+            all_levels[level].append(family_w)
+
+        serialized_levels = self.get_ids_by_level()
+        for level in range(len(all_levels)):
+            nodes = all_levels[level]
+            if len(nodes) == 0:
+                raise ValueError(f"No nodes are placed at level {level}. Level structure is {serialized_levels}")
+            first_node = nodes[0]
+            node_type = "person"
+            if isinstance(first_node, FamilyWrapper):
+                node_type = "family"
+            for n in nodes[1:]:
+                if (node_type == "person" and not isinstance(n, PersonWrapper)) or (
+                    node_type == "family" and not isinstance(n, FamilyWrapper)
+                ):
+                    raise ValueError(
+                        f"Nodes at level '{level}' are expected to be of '{node_type}' type. "
+                        f"Actual nodes are {json.dumps(serialized_levels[level])}"
+                    )
+        return serialized_levels
+
     def assign_levels_for_source(self, start_id: str):  # noqa: C901
         """Assign levels to all families and people in the tree."""
         if self.people:
@@ -132,16 +175,16 @@ class Organizer:
             first_person_w.level = 0
             visited_node_ids = {start_id}
             nodes_to_track = []
-            for fam_id in first_person_w.person.all_marriages:
-                family_w = self.families[fam_id]
+            for parent_id in first_person_w.person.all_marriages:
+                family_w = self.families[parent_id]
                 family_w.level = 1
-                visited_node_ids.add(fam_id)
+                visited_node_ids.add(parent_id)
                 nodes_to_track.append(family_w)
             for origin_w in first_person_w.origins:
-                fam_id = origin_w.parent_family_id
-                family_w = self.families[fam_id]
+                parent_id = origin_w.parent_family_id
+                family_w = self.families[parent_id]
                 family_w.level = -1
-                visited_node_ids.add(fam_id)
+                visited_node_ids.add(parent_id)
                 nodes_to_track.append(family_w)
 
             while len(nodes_to_track) > 0:
@@ -149,46 +192,56 @@ class Organizer:
                 level = tracked_node.level
                 if tracked_node.id in self.families:
                     family_node_w = tracked_node
-                    for fam_id in family_node_w.parents:
-                        if fam_id not in visited_node_ids:
-                            person_w = self.people[fam_id]
+                    for parent_id in family_node_w.parents:
+                        if parent_id not in visited_node_ids:
+                            person_w = self.people[parent_id]
                             person_w.level = level - 1
-                            visited_node_ids.add(fam_id)
+                            visited_node_ids.add(parent_id)
                             nodes_to_track.append(person_w)
-                    for fam_id in family_node_w.children:
-                        if fam_id not in visited_node_ids:
-                            person_w = self.people[fam_id]
+                    for child_id in family_node_w.children:
+                        if child_id not in visited_node_ids:
+                            person_w = self.people[child_id]
                             person_w.level = level + 1
-                            visited_node_ids.add(fam_id)
+                            visited_node_ids.add(child_id)
                             nodes_to_track.append(person_w)
-                elif tracked_node.id in self.people:  # pragma: no branch
+                elif tracked_node.id in self.people:
                     person_node_w = tracked_node
                     for origin_w in person_node_w.origins:
                         fam_id = origin_w.parent_family_id
-                        family_w = self.families[fam_id]
                         if fam_id not in visited_node_ids:
                             family_w = self.families[fam_id]
                             family_w.level = level - 1
                             visited_node_ids.add(fam_id)
                             nodes_to_track.append(family_w)
-                    for fam_id in person_node_w.person.all_marriages:
-                        if fam_id not in visited_node_ids:
-                            family_w = self.families[fam_id]
+                    for marriage_id in person_node_w.person.all_marriages:
+                        if marriage_id not in visited_node_ids:
+                            family_w = self.families[marriage_id]
                             family_w.level = level + 1
-                            visited_node_ids.add(fam_id)
+                            visited_node_ids.add(marriage_id)
                             nodes_to_track.append(family_w)
+                else:
+                    raise ValueError(f"Unexpected node '{tracked_node.id}'. It is not a person or a family.")
 
-    def serialize_by_level(self):
-        """Return a dictionary where level is the key and sorted list od ids is the value."""
+    def get_ids_by_level(self) -> dict[str, list[str]]:
+        """Return a dictionary where level is the key and sorted list of ids is the value."""
+        all_object_levels = self.get_objects_by_level()
+        all_levels = defaultdict(list)
+        for level, node_list in all_object_levels.items():
+            for n in node_list:
+                all_levels[level].append(n.id)
+        for level in all_levels:
+            all_levels[level] = sorted(all_levels[level])
+        return all_levels
+
+    def get_objects_by_level(self) -> dict[str, list[Any]]:
+        """Return a dictionary where level is the key and a list of nodes is the value."""
         all_levels = defaultdict(list)
         for person_w in self.people.values():
             level = person_w.level
-            all_levels[level].append(person_w.id)
+            all_levels[level].append(person_w)
         for family_w in self.families.values():
             level = family_w.level
-            all_levels[level].append(family_w.id)
-        for level in all_levels:
-            all_levels[level] = sorted(all_levels[level])
+            all_levels[level].append(family_w)
         return all_levels
 
     def find_other_parent(self, family_id: str, person_id: str) -> str | None:
@@ -319,3 +372,84 @@ class Organizer:
                         reviewed_families.add(marriage_id)
                         block.add_family_relatively(marriage_w, anchor_family_id, direction)
                         anchor_family_id = marriage_id
+
+    def organize_row(  # noqa: C901
+        self,
+        levels: dict[str, list[Any]],
+        reviewed_people: set[str],
+        reviewed_families: set[str],
+        start_level: int = 0,
+        previous_row: Row | None = None,
+    ) -> Row:
+        """Create blocks for a row, pulling in the previous row's children first when it is provided."""
+        res: Row = Row()
+        first_level = levels.get(start_level)
+        if first_level is None and start_level != 0:
+            id_levels = self.get_ids_by_level()
+            raise ValueError(
+                f"Cannot organize a non-existing row. Requested level is '{start_level}', "
+                f"but levels are: {json.dumps(id_levels)}"
+            )
+        if first_level:
+            first_wrapper = first_level[0]
+            if isinstance(first_wrapper, FamilyWrapper):
+                if previous_row is not None:
+                    raise ValueError(f"Expected to find people in row '{start_level}', but found families")
+                for family_w in first_level:
+                    block = Block()
+                    block.add_family(family_w)
+                    res.add_block(block)
+                    reviewed_families.add(family_w.id)
+            elif isinstance(first_wrapper, PersonWrapper):
+                if previous_row is not None:
+                    parent_families = [
+                        family for family_list in previous_row.get_families() for family in family_list
+                    ]  # flatten the list
+                    children_ids = []
+                    for family_w in parent_families:
+                        for child_id in family_w.children:
+                            child_w = self.people[child_id]
+                            if child_w.primary_parent_family_id == family_w.id:
+                                children_ids.append(child_w.id)
+                    for id in children_ids:
+                        if id not in reviewed_people:
+                            block = self.order_marriages(id, reviewed_people, reviewed_families)
+                            res.add_block(block)
+                family_level = levels.get(start_level + 1, [])
+                sorted_people = sorted(first_level, key=lambda person_w: person_w.sorting_key)
+                for person_w in sorted_people:
+                    if person_w.id not in reviewed_people:
+                        block = self.order_marriages(person_w.id, reviewed_people, reviewed_families)
+                        res.add_block(block)
+                for family_w in family_level:
+                    if family_w.id not in reviewed_families:
+                        block = Block()
+                        block.add_family(family_w)
+                        res.add_block(block)
+                        reviewed_families.add(family_w.id)
+            else:
+                raise ValueError(f"Unexpected object in one of the assigned levels {first_wrapper}")
+        return res
+
+    def organize_tree(self) -> list[Row]:
+        """Return list of rows for all people and families in the tree."""
+        reviewed_people = set()
+        reviewed_families = set()
+        res = []
+        self.assign_levels()
+        levels = self.get_objects_by_level()
+        previous_row = None
+        current_height = 0
+        remaining_levels = len(levels)
+        while remaining_levels > 0:
+            current_row = self.organize_row(levels, reviewed_people, reviewed_families, current_height, previous_row)
+            current_row_height = 0
+            if current_row.get_people_count() > 0:
+                current_row_height += 1
+            if current_row.get_family_count() > 0:
+                current_row_height += 1
+            current_height += current_row_height
+            remaining_levels -= current_row_height
+            res.append(current_row)
+
+        return res

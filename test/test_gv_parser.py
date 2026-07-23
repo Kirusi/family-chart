@@ -15,9 +15,6 @@ def parser():
     return GvParser()
 
 
-# ── parse_attr_block ──────────────────────────────────────────────────────────
-
-
 class TestParseAttrBlock:
     def test_quoted_values(self, parser):
         result = parser.parse_attr_block('style="solid,filled" fontsize="14"')
@@ -36,9 +33,6 @@ class TestParseAttrBlock:
 
     def test_single_pair(self, parser):
         assert parser.parse_attr_block('rankdir="TB"') == {"rankdir": "TB"}
-
-
-# ── parse_label ───────────────────────────────────────────────────────────────
 
 
 class TestParseLabel:
@@ -111,9 +105,6 @@ class TestParseLabel:
         assert text_lines == []
 
 
-# ── parse_header_line ─────────────────────────────────────────────────────────
-
-
 class TestParseHeaderLine:
     def test_metadata_stat(self, parser):
         settings = GraphSettings()
@@ -162,9 +153,6 @@ class TestParseHeaderLine:
         assert settings.edge_defaults == {}
         assert settings.node_defaults == {}
         assert settings.graph_attrs == {}
-
-
-# ── parse_person_node ───────────────────────────────────────────────────────────────
 
 
 class TestParseNode:
@@ -263,9 +251,6 @@ class TestParseNode:
         assert person.all_marriages == []
 
 
-# ── parse — people ───────────────────────────────────────────────────────────
-
-
 class TestParsePeople:
     def test_returns_settings_people_families(self, parser):
         settings, people, families, _ = parser.parse(PEOPLE_FILE)
@@ -335,9 +320,6 @@ class TestParsePeople:
         assert alasdair.all_marriages == []
 
 
-# ── parse — families ──────────────────────────────────────────────────────────
-
-
 class TestParseFamilies:
     def test_family_count(self, parser):
         _, _, families, _ = parser.parse(FAMILY_FILE)
@@ -383,9 +365,6 @@ class TestParseFamilies:
         assert all(e.map_url == "https://maps.google.com?q=51.7823,70.2505" for e in f.text_lines)
 
 
-# ── parse — relationships ─────────────────────────────────────────────────────
-
-
 class TestParseRelationships:
     def test_relationship_count(self, parser):
         _, _, _, rels = parser.parse(REL_FILE)
@@ -418,5 +397,6 @@ class TestParseRelationships:
 
     def test_subgraph_style_line_not_parsed_as_relationship(self, parser):
         _, _, _, rels = parser.parse(REL_FILE)
-        assert all("->" in f"{r.from_id}{r.to_id}" or True for r in rels)
-        assert all(r.from_id and r.to_id for r in rels)
+        ids = {r.from_id for r in rels} | {r.to_id for r in rels}
+        assert "style" not in ids
+        assert "invis" not in ids

@@ -15,12 +15,14 @@ class PersonWrapper:
     WOMAN = "W"
     UNKNOWN = "N"
 
+    GENDER_PRIORITY = {"M": "1", "W": "2", "N": "3"}
+
     id: str
     person: Person
     gender: str
     level: int
     origins: list[OriginWrapper]
-    primary_parent_family_id: str
+    primary_parent_family_id: str | None = None
 
     def __init__(self, person: Person):
         """Default constructor."""
@@ -29,6 +31,7 @@ class PersonWrapper:
         self.gender = PersonWrapper.parse_color(person.fillcolor)
         self.level = MIN_LEVEL
         self.origins = []
+        self.sorting_key = f"{self.GENDER_PRIORITY[self.gender]}_{next(iter(self.person.text_lines), '')}"
 
     @staticmethod
     def parse_color(color: str):
