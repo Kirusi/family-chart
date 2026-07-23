@@ -2232,3 +2232,115 @@ class TestOrganizeRow:
         res = o.organize_row(levels, reviewed_people, reviewed_families, start_level=2, previous_row=first_row)
         assert res.get_people_ids() == [["I2"], ["I4"], ["I3"]]
         assert res.get_family_ids() == [["F2"], ["F4"], ["F3"]]
+
+
+class TestOrganizeTree:
+    def test_empty_tree_returns_empty_list(self):
+        t = FamilyTree([], [], [])
+        o = Organizer(t)
+        res = o.organize_tree()
+        assert res == []
+
+    def test_single_unmarried_person_produces_one_row(self):
+        t = FamilyTree(
+            [Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")])],
+            [],
+            [],
+        )
+        o = Organizer(t)
+        res = o.organize_tree()
+        assert len(res) == 1
+        assert res[0].get_people_ids() == [["I1"]]
+        assert res[0].get_family_ids() == [[]]
+
+    def test_married_couple_with_no_children_folds_into_a_single_row(self):
+        # The couple and their marriage share levels 0 and 1, but organize_tree's height
+        # accounting advances by both levels in the same iteration, so only one Row comes out.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
+        )
+        o = Organizer(t)
+        res = o.organize_tree()
+        assert len(res) == 1
+        assert res[0].get_people_ids() == [["I1", "I2"]]
+        assert res[0].get_family_ids() == [["F1"]]
+
+    def test_three_generations_produces_three_rows(self):
+        # Same tree as TestAssignLevels.test_two_families_three_generations:
+        # I1/I2 (level 0) marry via F1 (level 1) and have children I3/I5 (level 2);
+        # I3 marries I4 via F2 (level 3) and they have children I6/I7 (level 4).
+        t = FamilyTree(
+            [
+                Person(
+                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
+                ),
+                Person(
+                    id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
+                ),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2"]),
+                Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
+                Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
+                Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
+                Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
+            ],
+            [Family(id="F1"), Family(id="F2")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I3"),
+                Relationship(from_id="F1", to_id="I5"),
+                Relationship(from_id="I3", to_id="F2"),
+                Relationship(from_id="I4", to_id="F2"),
+                Relationship(from_id="F2", to_id="I6"),
+                Relationship(from_id="F2", to_id="I7"),
+            ],
+        )
+        o = Organizer(t)
+        res = o.organize_tree()
+        assert len(res) == 3
+        assert res[0].get_people_ids() == [["I1", "I2"]]
+        assert res[0].get_family_ids() == [["F1"]]
+        assert res[1].get_people_ids() == [["I3", "I4"], ["I5"]]
+        assert res[1].get_family_ids() == [["F2"], []]
+        assert res[2].get_people_ids() == [["I6"], ["I7"]]
+        assert res[2].get_family_ids() == [[], []]
+        all_reviewed_people = {p for row in res for block in row.get_people_ids() for p in block}
+        all_reviewed_families = {f for row in res for block in row.get_family_ids() for f in block}
+        assert all_reviewed_people == {"I1", "I2", "I3", "I4", "I5", "I6", "I7"}
+        assert all_reviewed_families == {"F1", "F2"}
+
+    def test_family_without_parents_at_top_folds_into_two_rows(self):
+        # Same tree as TestAssignLevels.test_family_without_parents_at_top_of_hierarchy:
+        # F0 (level 0, no parents) has child I1 (level 1), who marries I2 via F1 (level 2).
+        # organize_row pulls I1 in as a child of F0's row and immediately folds in I1's own
+        # marriage/family, so the 3 assigned levels collapse into 2 Rows instead of 3.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(
+                    id="I2",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("woman")],
+                    all_marriages=["F1"],
+                ),
+            ],
+            [Family(id="F0"), Family(id="F1")],
+            [
+                Relationship(from_id="F0", to_id="I1"),
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+            ],
+        )
+        o = Organizer(t)
+        o.families["F0"].parents = []
+        res = o.organize_tree()
+        assert len(res) == 2
+        assert res[0].get_people_ids() == [[]]
+        assert res[0].get_family_ids() == [["F0"]]
+        assert res[1].get_people_ids() == [["I1", "I2"]]
+        assert res[1].get_family_ids() == [["F1"]]

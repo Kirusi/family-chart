@@ -430,3 +430,26 @@ class Organizer:
             else:
                 raise ValueError(f"Unexpected object in one of the assigned levels {first_wrapper}")
         return res
+
+    def organize_tree(self) -> list[Row]:
+        """Return list of rows for all people and families in the tree."""
+        reviewed_people = set()
+        reviewed_families = set()
+        res = []
+        self.assign_levels()
+        levels = self.get_objects_by_level()
+        previous_row = None
+        current_height = 0
+        remaining_levels = len(levels)
+        while remaining_levels > 0:
+            current_row = self.organize_row(levels, reviewed_people, reviewed_families, current_height, previous_row)
+            current_row_height = 0
+            if current_row.get_people_count() > 0:
+                current_row_height += 1
+            if current_row.get_family_count() > 0:
+                current_row_height += 1
+            current_height += current_row_height
+            remaining_levels -= current_row_height
+            res.append(current_row)
+
+        return res
