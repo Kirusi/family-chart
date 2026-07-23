@@ -12,3 +12,4 @@ class Family:
     id: str
     fillcolor: str | None = None
     text_lines: list[TextLine] = field(default_factory=list)
+    source: str = ""

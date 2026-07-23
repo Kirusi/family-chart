@@ -451,5 +451,6 @@ class Organizer:
             current_height += current_row_height
             remaining_levels -= current_row_height
             res.append(current_row)
+            previous_row = current_row
 
         return res

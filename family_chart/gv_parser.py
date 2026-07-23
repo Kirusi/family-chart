@@ -96,15 +96,18 @@ class GvParser:
         m = _FILLCOLOR_RE.search(attrs_str)
         return m.group(1) if m else None
 
-    def parse_family_node(self, node_id: str, attrs_str: str) -> Family:
+    def parse_family_node(self, node_id: str, attrs_str: str, source: str = "") -> Family:
         """Extract all family attribute."""
         label_m = re.search(r"label=<<(.+?)>>", attrs_str, re.DOTALL)
         label_html = label_m.group(1) if label_m else ""
         return Family(
-            id=node_id, fillcolor=self.get_fillcolor(attrs_str), text_lines=self.parse_family_label(label_html)
+            id=node_id,
+            fillcolor=self.get_fillcolor(attrs_str),
+            text_lines=self.parse_family_label(label_html),
+            source=source,
         )
 
-    def parse_person_node(self, node_id: str, attrs_str: str) -> Person:
+    def parse_person_node(self, node_id: str, attrs_str: str, source: str = "") -> Person:
         """Extract all person attributes."""
         label_m = re.search(r"label=<<(.+?)>>", attrs_str, re.DOTALL)
         label_html = label_m.group(1) if label_m else ""
@@ -118,6 +121,7 @@ class GvParser:
             photo=photo,
             text_lines=text_lines,
             all_marriages=all_marriages,
+            source=source,
         )
 
     def parse(self, path: str | Path) -> tuple[GraphSettings, list[Person], list[Family], list[Relationship]]:
@@ -138,6 +142,7 @@ class GvParser:
                         from_id=rel_m.group(1),
                         to_id=rel_m.group(2),
                         attrs=self.parse_attr_block(rel_m.group(3)),
+                        source=line,
                     )
                 )
                 continue
@@ -146,11 +151,12 @@ class GvParser:
                 in_header = False
                 node_id, attrs_str = node_m.group(1), node_m.group(2)
                 if node_id.startswith("F"):
-                    families.append(self.parse_family_node(node_id, attrs_str))
+                    families.append(self.parse_family_node(node_id, attrs_str, source=line))
                 else:
-                    people.append(self.parse_person_node(node_id, attrs_str))
+                    people.append(self.parse_person_node(node_id, attrs_str, source=line))
                 continue
             if in_header:
+                settings.sources.append(line)
                 self.parse_header_line(stripped, settings)
 
         return settings, people, families, relationships
