@@ -134,3 +134,45 @@ class TestAddFamilyRelatively:
         assert "Family anchor" in msg
         assert "'unknown'" in msg
         assert "not found" in msg
+
+
+class TestCreateClusterId:
+    def test_single_person_no_families(self):
+        block = Block(make_person_w("I1"))
+        assert block.create_cluster_id() == "I1"
+
+    def test_no_people_no_families(self):
+        block = Block()
+        assert block.create_cluster_id() == ""
+
+    def test_people_and_families_joined_with_underscore(self):
+        block = Block(make_person_w("I1"))
+        block.add_person(make_person_w("I2"))
+        block.add_family(make_family_w("F1"))
+        assert block.create_cluster_id() == "I1_I2_F1"
+
+    def test_people_ids_are_sorted(self):
+        block = Block(make_person_w("I3"))
+        block.add_person(make_person_w("I1"))
+        block.add_person(make_person_w("I2"))
+        assert block.create_cluster_id() == "I1_I2_I3"
+
+    def test_family_ids_are_sorted(self):
+        block = Block(make_person_w("I1"))
+        block.add_family(make_family_w("F3"))
+        block.add_family(make_family_w("F1"))
+        block.add_family(make_family_w("F2"))
+        assert block.create_cluster_id() == "I1_F1_F2_F3"
+
+    def test_people_sorted_before_families_appended(self):
+        block = Block(make_person_w("I2"))
+        block.add_person(make_person_w("I1"))
+        block.add_family(make_family_w("F2"))
+        block.add_family(make_family_w("F1"))
+        assert block.create_cluster_id() == "I1_I2_F1_F2"
+
+    def test_only_families_no_people(self):
+        block = Block()
+        block.add_family(make_family_w("F2"))
+        block.add_family(make_family_w("F1"))
+        assert block.create_cluster_id() == "F1_F2"
