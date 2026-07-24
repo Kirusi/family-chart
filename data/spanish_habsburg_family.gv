@@ -1,0 +1,191 @@
+digraph GRAMPS_graph
+{
+  bgcolor=white;
+  center="true";
+  charset="utf8";
+  concentrate="false";
+  dpi="72";
+  graph [fontsize=14];
+  margin="1.00,1.00";
+  mclimit="99";
+  nodesep="0.20";
+  outputorder="edgesfirst";
+  pagedir="BL";
+  rankdir="TB";
+  ranksep="0.60";
+  ratio="expand";
+  searchsize="100";
+  size="97.99,47.99";
+  splines="true";
+
+  edge [len=0.5 style=solid fontsize=14];
+  node [style=filled fontsize=14];
+
+# Number of people in database: 35
+# Number of people of interest: 35
+# Number of families in database: 12
+# Number of families of interest: 12
+# Additional people removed: 0
+# Additional families removed: 0
+# Initial list of people of interest:
+# -> I0001, of Habsburg, Philip I (the Handsome)
+# -> I0035, of Habsburg, Charles II (King of Spain)
+
+  "I0001" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0001" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0001: of Habsburg, Philip I (the Handsome)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.2093,3.2247" ALIGN="LEFT">b. 1478-07-22 Bruges, Flanders, Burgundian Netherlands (51.21 N, 3.22 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=42.3439,-3.6969" ALIGN="LEFT">d. 1506-09-25 Burgos, Castile, Spain (42.34 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0002" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0001" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0002: of Castile, Joanna (the Mad)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=39.8628,-4.0273" ALIGN="LEFT">b. 1479-11-06 Toledo, Spain (39.86 N, 4.03 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.5016,-5.0006" ALIGN="LEFT">d. 1555-04-12 Tordesillas, Spain (41.50 N, 5.00 W)</TD></TR></TABLE>> ];
+  "I0003" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0003: of Habsburg, Eleanor</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=50.8798,4.7005" ALIGN="LEFT">b. 1498-11-15 Leuven, Brabant, Belgium (50.88 N, 4.70 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=39.9633,-4.8298" ALIGN="LEFT">d. 1558-02-25 Talavera de la Reina, Spain (39.96 N, 4.83 W)</TD></TR></TABLE>> ];
+  "I0004" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0002" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0004: of Habsburg, Charles V (Holy Roman Emperor)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.0543,3.7174" ALIGN="LEFT">b. 1500-02-24 Ghent, Flanders, Belgium (51.05 N, 3.72 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.1667,-5.7667" ALIGN="LEFT">d. 1558-09-21 Cuacos de Yuste, Spain (40.17 N, 5.77 W)</TD></TR></TABLE>> ];
+  "I0005" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0005: of Habsburg, Isabella</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=50.8503,4.3517" ALIGN="LEFT">b. 1501-07-18 Brussels, Belgium (50.85 N, 4.35 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.0167,3.7167" ALIGN="LEFT">d. 1526-01-19 Zwijnaarde, Ghent, Belgium (51.02 N, 3.72 E)</TD></TR></TABLE>> ];
+  "I0006" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0006: of Habsburg, Ferdinand I (Holy Roman Emperor)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4818,-3.3635" ALIGN="LEFT">b. 1503-03-10 Alcala de Henares, Spain (40.48 N, 3.36 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.2082,16.3738" ALIGN="LEFT">d. 1564-07-25 Vienna, Austria (48.21 N, 16.37 E)</TD></TR></TABLE>> ];
+  "I0007" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0007: of Habsburg, Mary</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=50.8503,4.3517" ALIGN="LEFT">b. 1505-09-15 Brussels, Belgium (50.85 N, 4.35 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.7333,-4.7167" ALIGN="LEFT">d. 1558-10-18 Cigales, Spain (41.73 N, 4.72 W)</TD></TR></TABLE>> ];
+  "I0008" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0008: of Habsburg, Catherine</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=42.0333,-4.3" ALIGN="LEFT">b. 1507-01-14 Torquemada, Spain (42.03 N, 4.30 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=38.7223,-9.1393" ALIGN="LEFT">d. 1578-02-12 Lisbon, Portugal (38.72 N, 9.14 W)</TD></TR></TABLE>> ];
+  "I0009" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0002" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0009: of Portugal, Isabella</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=38.7223,-9.1393" ALIGN="LEFT">b. 1503-10-24 Lisbon, Portugal (38.72 N, 9.14 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=39.8628,-4.0273" ALIGN="LEFT">d. 1539-05-01 Toledo, Spain (39.86 N, 4.03 W)</TD></TR></TABLE>> ];
+  "I0010" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0003, F0004, F0005, F0006" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0010: of Habsburg, Philip II (King of Spain)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.6523,-4.7245" ALIGN="LEFT">b. 1527-05-21 Valladolid, Spain (41.65 N, 4.72 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.5885,-4.1483" ALIGN="LEFT">d. 1598-09-13 El Escorial, Spain (40.59 N, 4.15 W)</TD></TR></TABLE>> ];
+  "I0011" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0011: of Habsburg, Maria (Holy Roman Empress)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1528-06-21 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1603-02-26 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0012" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0012: of Habsburg, Joanna (Princess of Portugal)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1535-06-24 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1573-09-08 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0013" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0003" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0013: of Portugal, Maria Manuela</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.2033,-8.4103" ALIGN="LEFT">b. 1527-10-15 Coimbra, Portugal (40.20 N, 8.41 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.6523,-4.7245" ALIGN="LEFT">d. 1545-07-12 Valladolid, Spain (41.65 N, 4.72 W)</TD></TR></TABLE>> ];
+  "I0014" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0014: of Habsburg, Carlos (Prince of Asturias)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.6523,-4.7245" ALIGN="LEFT">b. 1545-07-08 Valladolid, Spain (41.65 N, 4.72 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1568-07-24 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0015" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0004" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0015: of England, Mary I</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=51.482,0.0" ALIGN="LEFT">b. 1516-02-18 Greenwich, England (51.48 N, 0.00 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=51.5041,-0.1392" ALIGN="LEFT">d. 1558-11-17 St James's Palace, London, England (51.50 N, 0.14 W)</TD></TR></TABLE>> ];
+  "I0016" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0005" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0016: of Valois, Elisabeth</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.4042,2.7017" ALIGN="LEFT">b. 1545-04-02 Fontainebleau, France (48.40 N, 2.70 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1568-10-03 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0017" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0017: of Habsburg, Isabella Clara Eugenia</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1566-08-12 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=50.8503,4.3517" ALIGN="LEFT">d. 1633-12-01 Brussels, Belgium (50.85 N, 4.35 E)</TD></TR></TABLE>> ];
+  "I0018" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0018: of Habsburg, Catherine Michelle (Duchess of Savoy)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1567-10-10 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=45.0703,7.6869" ALIGN="LEFT">d. 1597-11-06 Turin, Italy (45.07 N, 7.69 E)</TD></TR></TABLE>> ];
+  "I0019" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0006" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0019: of Austria, Anna</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.7333,-4.7167" ALIGN="LEFT">b. 1549-11-02 Cigales, Spain (41.73 N, 4.72 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=38.8794,-6.9707" ALIGN="LEFT">d. 1580-10-26 Badajoz, Spain (38.88 N, 6.97 W)</TD></TR></TABLE>> ];
+  "I0020" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0020: of Habsburg, Diego (Prince of Asturias)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1575-07-15 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1582-11-21 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0021" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0007" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0021: of Habsburg, Philip III (King of Spain)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1578-04-14 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1621-03-31 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0022" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0007" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0022: of Austria, Margaret</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=47.0707,15.4395" ALIGN="LEFT">b. 1584-12-25 Graz, Austria (47.07 N, 15.44 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.5885,-4.1483" ALIGN="LEFT">d. 1611-10-03 El Escorial, Spain (40.59 N, 4.15 W)</TD></TR></TABLE>> ];
+  "I0023" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0008" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0023: of Habsburg, Anne (Queen of France)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.6523,-4.7245" ALIGN="LEFT">b. 1601-09-22 Valladolid, Spain (41.65 N, 4.72 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.8606,2.3376" ALIGN="LEFT">d. 1666-01-20 Palais du Louvre, Paris, France (48.86 N, 2.34 E)</TD></TR></TABLE>> ];
+  "I0024" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0009" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0024: of Habsburg, Maria Anna (Holy Roman Empress)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.5885,-4.1483" ALIGN="LEFT">b. 1606-08-18 El Escorial, Spain (40.59 N, 4.15 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.3069,14.2858" ALIGN="LEFT">d. 1646-05-13 Linz, Austria (48.31 N, 14.29 E)</TD></TR></TABLE>> ];
+  "I0025" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0010, F0012" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0025: of Habsburg, Philip IV (King of Spain)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=41.6523,-4.7245" ALIGN="LEFT">b. 1605-04-08 Valladolid, Spain (41.65 N, 4.72 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4155,-3.714" ALIGN="LEFT">d. 1665-09-17 Royal Alcazar, Madrid, Spain (40.42 N, 3.71 W)</TD></TR></TABLE>> ];
+  "I0026" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0026: of Habsburg, Ferdinand (Cardinal-Infante)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1609-05-16 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=50.8503,4.3517" ALIGN="LEFT">d. 1641-11-09 Brussels, Belgium (50.85 N, 4.35 E)</TD></TR></TABLE>> ];
+  "I0027" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0008" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0027: of Bourbon, Louis XIII (King of France)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.4042,2.7017" ALIGN="LEFT">b. 1601-09-27 Fontainebleau, France (48.40 N, 2.70 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.8987,2.093" ALIGN="LEFT">d. 1643-05-14 Saint-Germain-en-Laye, France (48.90 N, 2.09 E)</TD></TR></TABLE>> ];
+  "I0028" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0011" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0028: of Bourbon, Louis XIV (King of France)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.8987,2.093" ALIGN="LEFT">b. 1638-09-05 Saint-Germain-en-Laye, France (48.90 N, 2.09 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.8049,2.1204" ALIGN="LEFT">d. 1715-09-01 Versailles, France (48.80 N, 2.12 E)</TD></TR></TABLE>> ];
+  "I0029" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" all_marriages="F0009" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0029: of Habsburg, Ferdinand III (Holy Roman Emperor)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=47.0707,15.4395" ALIGN="LEFT">b. 1608-07-13 Graz, Austria (47.07 N, 15.44 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.2082,16.3738" ALIGN="LEFT">d. 1657-04-02 Vienna, Austria (48.21 N, 16.37 E)</TD></TR></TABLE>> ];
+  "I0030" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0012" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0030: of Habsburg, Mariana (Queen of Spain)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=47.8167,16.25" ALIGN="LEFT">b. 1634-12-24 Wiener Neustadt, Austria (47.82 N, 16.25 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1696-05-16 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0031" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0010" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0031: of Bourbon, Elisabeth</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=48.4042,2.7017" ALIGN="LEFT">b. 1602-11-22 Fontainebleau, France (48.40 N, 2.70 E)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1644-10-06 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+  "I0032" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0032: of Habsburg, Balthasar Charles (Prince of Asturias)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1629-10-17 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=41.6488,-0.8891" ALIGN="LEFT">d. 1646-10-09 Zaragoza, Spain (41.65 N, 0.89 W)</TD></TR></TABLE>> ];
+  "I0033" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" all_marriages="F0011" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0033: of Habsburg, Maria Theresa (Queen of France)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1638-09-20 Buen Retiro Palace, Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.8049,2.1204" ALIGN="LEFT">d. 1683-07-30 Versailles, France (48.80 N, 2.12 E)</TD></TR></TABLE>> ];
+  "I0034" [ shape="box" fillcolor="#ffe0e0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0034: of Habsburg, Margaret Theresa (Holy Roman Empress)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1651-07-12 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=48.2082,16.3738" ALIGN="LEFT">d. 1673-03-12 Vienna, Austria (48.21 N, 16.37 E)</TD></TR></TABLE>> ];
+  "I0035" [ shape="box" fillcolor="#e0e0ff" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD>I0035: of Habsburg, Charles II (King of Spain)</TD></TR><TR><TD CELLPADDING="4"><BR/></TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">b. 1661-11-06 Madrid, Spain (40.42 N, 3.70 W)</TD></TR><TR><TD HREF="https://maps.google.com?q=40.4168,-3.7038" ALIGN="LEFT">d. 1700-11-01 Madrid, Spain (40.42 N, 3.70 W)</TD></TR></TABLE>> ];
+
+  "F0001" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.13,4.57"><BR/>1496-10-20<BR/>Lier, Belgium (51.13 N, 4.57 E)<BR/>6 children</TD></TR></TABLE>> ];
+  "F0002" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=37.3891,-5.9845"><BR/>1526-03-10<BR/>Seville, Spain (37.39 N, 5.98 W)<BR/>3 children</TD></TR></TABLE>> ];
+  "F0003" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=40.9701,-5.6635"><BR/>1543-11-12<BR/>Salamanca, Spain (40.97 N, 5.66 W)<BR/>1 child</TD></TR></TABLE>> ];
+  "F0004" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=51.0632,-1.308"><BR/>1554-07-25<BR/>Winchester, England (51.06 N, 1.31 W)<BR/>0 children</TD></TR></TABLE>> ];
+  "F0005" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=40.6333,-3.1667"><BR/>1560-01-31<BR/>Guadalajara, Spain (40.63 N, 3.17 W)<BR/>2 children</TD></TR></TABLE>> ];
+  "F0006" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=40.9429,-4.1088"><BR/>1570-05-04<BR/>Segovia, Spain (40.94 N, 4.11 W)<BR/>2 children</TD></TR></TABLE>> ];
+  "F0007" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=39.4699,-0.3763"><BR/>1599-04-18<BR/>Valencia, Spain (39.47 N, 0.38 W)<BR/>4 children</TD></TR></TABLE>> ];
+  "F0008" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=44.8378,-0.5792"><BR/>1615-11-25<BR/>Bordeaux, France (44.84 N, 0.58 W)<BR/>1 child</TD></TR></TABLE>> ];
+  "F0009" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=48.2082,16.3738"><BR/>1631-02-20<BR/>Vienna, Austria (48.21 N, 16.37 E)<BR/>1 child</TD></TR></TABLE>> ];
+  "F0010" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=42.3439,-3.6969"><BR/>1615-11-25<BR/>Burgos, Spain (42.34 N, 3.70 W)<BR/>2 children</TD></TR></TABLE>> ];
+  "F0011" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=43.3891,-1.6621"><BR/>1660-06-09<BR/>Saint-Jean-de-Luz, France (43.39 N, 1.66 W)<BR/>0 children</TD></TR></TABLE>> ];
+  "F0012" [ shape="ellipse" fillcolor="#ffffe0" style="solid,filled" label=<<TABLE BORDER="0" CELLSPACING="2" CELLPADDING="0" CELLBORDER="0"><TR><TD HREF="https://maps.google.com?q=40.35,-4.0"><BR/>1649-10-07<BR/>Navalcarnero, Spain (40.35 N, 4.00 W)<BR/>2 children</TD></TR></TABLE>> ];
+
+  subgraph cluster_F0001
+  {
+  style="invis";
+  "I0001" -> "F0001" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip I (the Handsome)
+  "I0002" -> "F0001" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Castile, Joanna (the Mad)
+  }
+  "F0001" -> "I0003" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Eleanor, b. 1498-11-15
+  "F0001" -> "I0004" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Charles V (Holy Roman Emperor), b. 1500-02-24
+  "F0001" -> "I0005" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Isabella, b. 1501-07-18
+  "F0001" -> "I0006" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Ferdinand I (Holy Roman Emperor), b. 1503-03-10
+  "F0001" -> "I0007" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Mary, b. 1505-09-15
+  "F0001" -> "I0008" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Catherine, b. 1507-01-14
+
+  subgraph cluster_F0002
+  {
+  style="invis";
+  "I0004" -> "F0002" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Charles V (Holy Roman Emperor)
+  "I0009" -> "F0002" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Portugal, Isabella
+  }
+  "F0002" -> "I0010" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Philip II (King of Spain), b. 1527-05-21
+  "F0002" -> "I0011" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Maria (Holy Roman Empress), b. 1528-06-21
+  "F0002" -> "I0012" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Joanna (Princess of Portugal), b. 1535-06-24
+
+  subgraph cluster_F0003
+  {
+  style="invis";
+  "I0010" -> "F0003" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip II (King of Spain)
+  "I0013" -> "F0003" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Portugal, Maria Manuela
+  }
+  "F0003" -> "I0014" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Carlos (Prince of Asturias), b. 1545-07-08
+
+  subgraph cluster_F0004
+  {
+  style="invis";
+  "I0010" -> "F0004" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip II (King of Spain)
+  "I0015" -> "F0004" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of England, Mary I
+  }
+
+  subgraph cluster_F0005
+  {
+  style="invis";
+  "I0010" -> "F0005" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip II (King of Spain)
+  "I0016" -> "F0005" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Valois, Elisabeth
+  }
+  "F0005" -> "I0017" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Isabella Clara Eugenia, b. 1566-08-12
+  "F0005" -> "I0018" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Catherine Michelle (Duchess of Savoy), b. 1567-10-10
+
+  subgraph cluster_F0006
+  {
+  style="invis";
+  "I0010" -> "F0006" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip II (King of Spain)
+  "I0019" -> "F0006" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Austria, Anna
+  }
+  "F0006" -> "I0020" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Diego (Prince of Asturias), b. 1575-07-15
+  "F0006" -> "I0021" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Philip III (King of Spain), b. 1578-04-14
+
+  subgraph cluster_F0007
+  {
+  style="invis";
+  "I0021" -> "F0007" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip III (King of Spain)
+  "I0022" -> "F0007" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Austria, Margaret
+  }
+  "F0007" -> "I0023" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Anne (Queen of France), b. 1601-09-22
+  "F0007" -> "I0024" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Maria Anna (Holy Roman Empress), b. 1606-08-18
+  "F0007" -> "I0025" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Philip IV (King of Spain), b. 1605-04-08
+  "F0007" -> "I0026" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Ferdinand (Cardinal-Infante), b. 1609-05-16
+
+  subgraph cluster_F0008
+  {
+  style="invis";
+  "I0027" -> "F0008" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Bourbon, Louis XIII (King of France)
+  "I0023" -> "F0008" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Habsburg, Anne (Queen of France)
+  }
+  "F0008" -> "I0028" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Bourbon, Louis XIV (King of France), b. 1638-09-05
+
+  subgraph cluster_F0009
+  {
+  style="invis";
+  "I0029" -> "F0009" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Ferdinand III (Holy Roman Emperor)
+  "I0024" -> "F0009" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Habsburg, Maria Anna (Holy Roman Empress)
+  }
+  "F0009" -> "I0030" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Mariana (Queen of Spain), b. 1634-12-24
+
+  subgraph cluster_F0010
+  {
+  style="invis";
+  "I0025" -> "F0010" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip IV (King of Spain)
+  "I0031" -> "F0010" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Bourbon, Elisabeth
+  }
+  "F0010" -> "I0032" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Balthasar Charles (Prince of Asturias), b. 1629-10-17
+  "F0010" -> "I0033" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Maria Theresa (Queen of France), b. 1638-09-20
+
+  subgraph cluster_F0011
+  {
+  style="invis";
+  "I0028" -> "F0011" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Bourbon, Louis XIV (King of France)
+  "I0033" -> "F0011" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Habsburg, Maria Theresa (Queen of France)
+  }
+
+  subgraph cluster_F0012
+  {
+  style="invis";
+  "I0025" -> "F0012" [ arrowhead=normal arrowtail=none dir=both ]; // father: of Habsburg, Philip IV (King of Spain)
+  "I0030" -> "F0012" [ arrowhead=normal arrowtail=none dir=both ]; // mother: of Habsburg, Mariana (Queen of Spain)
+  }
+  "F0012" -> "I0034" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Margaret Theresa (Holy Roman Empress), b. 1651-07-12
+  "F0012" -> "I0035" [ style=solid arrowhead=normal arrowtail=none dir=both ]; // child: of Habsburg, Charles II (King of Spain), b. 1661-11-06
+
+}
