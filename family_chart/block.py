@@ -50,3 +50,12 @@ class Block:
         if direction == "R":
             pos += 1
         self.families.insert(pos, new_family_w)
+
+    def create_cluster_id(self):
+        """Create a unique id by concatenating ids of all people and of all families."""
+        people_ids = [person_w.id for person_w in self.people]
+        people_ids = sorted(people_ids)
+        family_ids = [family_w.id for family_w in self.families]
+        family_ids = sorted(family_ids)
+        cluster_id = "_".join([*people_ids, *family_ids])
+        return cluster_id
