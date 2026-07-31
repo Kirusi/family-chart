@@ -7,7 +7,6 @@ from typing import Any
 
 from family_chart import constants
 from family_chart.block import Block
-from family_chart.descendants_results import DescendantsResult
 from family_chart.family_tree import FamilyTree
 from family_chart.family_wrapper import FamilyWrapper
 from family_chart.origin_wrapper import OriginWrapper
@@ -92,189 +91,6 @@ class Organizer:
                     and self.people[second_parent_id].gender == PersonWrapper.MAN
                 ):
                     family_w.parents = [second_parent_id, first_parent_id]
-
-    def assign_levels(self) -> dict[str, list[str]]:
-        """
-        Assign levels using ancestry as hard constraints and marriages as soft ones.
-
-        A family and its birth-only children form a rigid group: such children sit
-        exactly one level below the family, and families sharing a child share a
-        level. A child with an adopted origin is linked softly instead and sinks
-        below all of its origin families, so an adoptive family from another
-        generation (e.g. the grandparents, or an older sibling's family) keeps its
-        own level and its edge to the child spans levels. Groups are placed relative
-        to each other through parent, marriage, and adoption links, spreading out
-        from the first person, and then pushed down until every family sits below
-        all of its parents and every child below all of its origin families. Spouses
-        may therefore end up on different levels, which keeps marriages between
-        generations (e.g. uncle and niece) consistent: such a marriage attaches
-        below its younger spouse and its edge to the older spouse spans levels.
-        """
-        if self.people:
-            group_of, groups = self.build_rigid_groups()
-            # Position of a node inside its rigid group: children hang one below families
-            rel = {pid: 1 if person_w.origins else 0 for pid, person_w in self.people.items()}
-            for fid in self.families:
-                rel[fid] = 0
-            offsets = self.place_groups(group_of, groups, rel)
-            self.push_families_below_parents(group_of, len(groups), rel, offsets)
-
-            for person_w in self.people.values():
-                group = group_of[person_w.id]
-                person_w.level = offsets[group] + rel[person_w.id] if group in offsets else constants.MIN_LEVEL
-            for family_w in self.families.values():
-                group = group_of[family_w.id]
-                family_w.level = offsets.get(group, constants.MIN_LEVEL)
-
-            self.validate_preliminary_assignments()
-            # Adjust levels to start with zero
-            min_level_people = min(self.people.values(), key=lambda obj: obj.level).level
-            min_level_families = 0
-            if self.families:
-                min_level_families = min(self.families.values(), key=lambda obj: obj.level).level
-            min_level = min(min_level_people, min_level_families)
-            for person_w in self.people.values():
-                person_w.level -= min_level
-            for family_w in self.families.values():
-                family_w.level -= min_level
-
-            serialized_levels = self.validate_final_assignments()
-            return serialized_levels
-        return {}
-
-    def build_rigid_groups(self) -> tuple[dict[str, int], list[list[str]]]:
-        """
-        Split all nodes into rigid groups joined by family-child links.
-
-        A birth child sits exactly one level below its family, so a family, its birth
-        children, and any other families sharing those children always move together.
-        A child with an adopted origin is excluded entirely: it must sink below all of
-        its origin families, which may belong to different generations (e.g.
-        grandparents or an older sibling adopting the child), so welding it to any one
-        of them would make the layout unsolvable. Returns the group index of every
-        node and the members of every group.
-        """
-        adjacency = defaultdict(list)
-        for person_w in self.people.values():
-            if any(origin_w.is_adopted for origin_w in person_w.origins):
-                continue
-            for origin_w in person_w.origins:
-                adjacency[origin_w.parent_family_id].append(person_w.id)
-                adjacency[person_w.id].append(origin_w.parent_family_id)
-        group_of: dict[str, int] = {}
-        groups: list[list[str]] = []
-        for node_id in [*self.people, *self.families]:
-            if node_id not in group_of:
-                group_index = len(groups)
-                members = [node_id]
-                group_of[node_id] = group_index
-                frontier = deque([node_id])
-                while frontier:
-                    for neighbor_id in adjacency[frontier.popleft()]:
-                        if neighbor_id not in group_of:
-                            group_of[neighbor_id] = group_index
-                            members.append(neighbor_id)
-                            frontier.append(neighbor_id)
-                groups.append(members)
-        return group_of, groups
-
-    def place_groups(self, group_of: dict[str, int], groups: list[list[str]], rel: dict[str, int]) -> dict[int, int]:
-        """
-        Choose a level offset for every rigid group reachable from the first person.
-
-        Groups are placed next to their nearest placed neighbor, spreading out through
-        parent, marriage, and adoption links. Adopted children live in a different
-        rigid group than the adoptive family, so those links are followed in both
-        directions here. Groups still unreached at the end are disconnected from the
-        tree and are later reported as unassigned.
-        """
-        offsets: dict[int, int] = {}
-        first_person_id = [*self.people][0]
-        offsets[group_of[first_person_id]] = -rel[first_person_id]
-        queue = deque([group_of[first_person_id]])
-        while queue:
-            for node_id in groups[queue.popleft()]:
-                if node_id in self.families:
-                    self.place_family_neighbors(node_id, group_of, rel, offsets, queue)
-                else:
-                    self.place_person_neighbors(node_id, group_of, rel, offsets, queue)
-        return offsets
-
-    def place_family_neighbors(
-        self, family_id: str, group_of: dict[str, int], rel: dict[str, int], offsets: dict[int, int], queue: deque[int]
-    ) -> None:
-        """Place the unplaced groups of a family's parents and adopted children next to it."""
-        family_level = offsets[group_of[family_id]]
-        for parent_id in self.families[family_id].parents:
-            parent_group = group_of[parent_id]
-            if parent_group not in offsets:
-                offsets[parent_group] = family_level - 1 - rel[parent_id]
-                queue.append(parent_group)
-        # Birth children share the family's group; only adopted children can be unplaced
-        for child_id in self.families[family_id].children:
-            child_group = group_of[child_id]
-            if child_group not in offsets:
-                offsets[child_group] = family_level + 1 - rel[child_id]
-                queue.append(child_group)
-
-    def place_person_neighbors(
-        self, person_id: str, group_of: dict[str, int], rel: dict[str, int], offsets: dict[int, int], queue: deque[int]
-    ) -> None:
-        """Place the unplaced groups of a person's marriages and adoptive families next to them."""
-        person_level = offsets[group_of[person_id]] + rel[person_id]
-        for marriage_id in self.people[person_id].person.all_marriages:
-            marriage_group = group_of[marriage_id]
-            if marriage_group not in offsets:
-                offsets[marriage_group] = person_level + 1
-                queue.append(marriage_group)
-        # The birth family shares the person's group; only adoptive origins can be unplaced
-        for origin_w in self.people[person_id].origins:
-            origin_group = group_of[origin_w.parent_family_id]
-            if origin_group not in offsets:
-                offsets[origin_group] = person_level - 1
-                queue.append(origin_group)
-
-    def push_families_below_parents(
-        self, group_of: dict[str, int], group_count: int, rel: dict[str, int], offsets: dict[int, int]
-    ) -> None:
-        """
-        Push placed groups down until every family sits below its parents and every child below its origin families.
-
-        This is what lets a marriage between generations attach below its younger
-        spouse while its edge to the older spouse spans levels, and what sinks an
-        adopted child below both its birth and adoptive families. Birth children are
-        rigid with their family, so their constraint holds as an equality and never
-        pushes. An acyclic ancestry graph settles within one pass per group; an
-        ancestry cycle (corrupt data) would keep pushing groups down forever, so the
-        number of passes is capped.
-        """
-        remaining_passes = group_count
-        changed = True
-        while changed:
-            changed = False
-            culprits = []
-            for family_w in self.families.values():
-                family_group = group_of[family_w.id]
-                if family_group not in offsets:
-                    continue
-                # Placing a family's group also placed all of its parents' and children's groups
-                for parent_id in family_w.parents:
-                    needed = offsets[group_of[parent_id]] + rel[parent_id] + 1
-                    if offsets[family_group] < needed:
-                        offsets[family_group] = needed
-                        changed = True
-                        culprits.append(family_w.id)
-                for child_id in family_w.children:
-                    child_group = group_of[child_id]
-                    needed = offsets[family_group] + 1 - rel[child_id]
-                    if offsets[child_group] < needed:
-                        offsets[child_group] = needed
-                        changed = True
-                        culprits.append(family_w.id)
-            if changed:
-                remaining_passes -= 1
-                if remaining_passes < 0:
-                    raise ValueError(f"Ancestry cycle detected involving families {sorted(set(culprits))}")
 
     def validate_preliminary_assignments(self):
         """Check whether some people or families were left unassigned."""
@@ -365,30 +181,6 @@ class Organizer:
             if all(not self.people[parent_id].origins for parent_id in family_w.parents):
                 res.append(family_w.id)
         return sorted(res)
-
-    def traverse_descendants(self, family_tree: FamilyTree, founder_family_id: str) -> DescendantsResult:
-        """
-        Traverse all descendants of a founder family and measure their generation distance.
-
-        The founder family sits at distance 0 and its parents at -1. Every child connected
-        by birth of a traversed family sits one below the family. A node reachable through
-        several paths (e.g. a cousin marriage or an adoption) keeps the length of the
-        longest path. Spouses who married into the tree are included one above their
-        oldest traversed marriage but are not traversed further, so their own ancestors
-        and other marriages stay out. The result also carries the people, families, and relationships used,
-        in the order they appear in the given family tree.
-        """
-        helper = self if family_tree is self.family_tree else Organizer(family_tree)
-        distances = helper.measure_descendant_distances(founder_family_id)
-        helper.include_spouses(distances)
-        people = [person for person in family_tree.people if person.id in distances]
-        families = [family for family in family_tree.families if family.id in distances]
-        relationships = [
-            relationship
-            for relationship in family_tree.relationships
-            if relationship.from_id in distances and relationship.to_id in distances
-        ]
-        return DescendantsResult(distances, people, families, relationships)
 
     def init_descendant_distances(self, founder_family_id: str, distances: dict[str, int] | None) -> dict[str, int]:
         """Validate and return the starting distances for a descendant traversal."""
@@ -481,26 +273,6 @@ class Organizer:
         closest_id = min(common_ids, key=lambda node_id: (first_distances[node_id], node_id))
         return closest_id, first_distances[closest_id], second_distances[closest_id]
 
-    def merge_descendant_distances(
-        self, first_distances: dict[str, int], second_distances: dict[str, int]
-    ) -> dict[str, int]:
-        """
-        Merge two descendant traversals into a single dictionary of distances.
-
-        Both dictionaries are produced by measure_descendant_distances from
-        different founders' families and must share at least one node. Every
-        distance in the second dictionary is shifted so that the closest common
-        node sits on the same level in both, then the dictionaries are merged.
-        A node present in both keeps the longest of its two distances, mirroring
-        how measure_descendant_distances treats a node reachable through several
-        paths.
-        """
-        common = self.find_closest_common_node(first_distances, second_distances)
-        if common is None:
-            raise ValueError("Cannot merge distance dictionaries that share no node")
-        _, first_distance, second_distance = common
-        return self.merge_shifted_distances(first_distances, second_distances, first_distance - second_distance)
-
     def merge_shifted_distances(
         self, first_distances: dict[str, int], second_distances: dict[str, int], shift: int
     ) -> dict[str, int]:
@@ -518,7 +290,7 @@ class Organizer:
                 res[node_id] = shifted
         return res
 
-    def assign_levels2(self) -> dict[str, list[str]]:  # noqa: C901
+    def assign_levels(self) -> dict[str, list[str]]:  # noqa: C901
         """
         Assign a level to every node by merging the descendant traversals of all founder families.
 
@@ -784,7 +556,7 @@ class Organizer:
         reviewed_people = set()
         reviewed_families = set()
         res = []
-        self.assign_levels2()
+        self.assign_levels()
         levels = self.get_objects_by_level()
         previous_row = None
         current_height = 0

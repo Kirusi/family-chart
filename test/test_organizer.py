@@ -84,640 +84,37 @@ class TestConstructor:
         assert "not listed among person nodes" in msg
 
 
-class TestAssignLevels:
-    def test_raises_when_person_is_both_parent_and_child_of_same_family(self):
-        # Corrupt data: I1 is simultaneously a parent and a child of F1, so I1 and F1
-        # belong to the same rigid group and no consistent level can exist.
-        t = FamilyTree(
-            [Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"])],
-            [Family(id="F1")],
-            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="F1", to_id="I1")],
+class TestValidatePreliminaryAssignments:
+    def make_organizer(self):
+        return Organizer(
+            FamilyTree(
+                [
+                    Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
+                    Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
+                ],
+                [Family(id="F1")],
+                [],
+            )
         )
-        o = Organizer(t)
+
+    def test_all_nodes_assigned_passes(self):
+        o = self.make_organizer()
+        o.people["I1"].level = 0
+        o.people["I2"].level = 0
+        o.families["F1"].level = 1
+        assert o.validate_preliminary_assignments() is None
+
+    def test_unassigned_person_and_family_are_reported(self):
+        # I2 and F1 keep their default level and land in the unassigned lists.
+        o = self.make_organizer()
+        o.people["I1"].level = 0
         with pytest.raises(ValueError) as ex:
-            o.assign_levels()
-        msg = str(ex.value)
-        assert "Ancestry cycle detected" in msg
-        assert "'F1'" in msg
-
-    def test_raises_when_person_is_their_own_grandparent(self):
-        # Corrupt data: I1 is a parent of F1, whose child I2 is a parent of F2, whose
-        # child is I1 again. The child links chain F1 -> I2 -> F2 -> I1 into one rigid
-        # group, so F1's parent I1 lands in F1's own group.
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
-            ],
-            [Family(id="F1"), Family(id="F2")],
-            [
-                Relationship(from_id="I1", to_id="F1"),
-                Relationship(from_id="F1", to_id="I2"),
-                Relationship(from_id="I2", to_id="F2"),
-                Relationship(from_id="F2", to_id="I1"),
-            ],
-        )
-        o = Organizer(t)
-        with pytest.raises(ValueError) as ex:
-            o.assign_levels()
-        msg = str(ex.value)
-        assert "Ancestry cycle detected" in msg
-
-    def test_empty_tree(self):
-        t = FamilyTree([], [], [])
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {}
-
-    def test_empty_tree_without_assign(self):
-        t = FamilyTree([], [], [])
-        o = Organizer(t)
-        # o.assign_levels()
-        res = o.get_ids_by_level()
-        assert res == {}
-
-    def test_one_person_without_connections(self):
-        t = FamilyTree([Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")])], [], [])
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {0: ["I1"]}
-
-    def test_two_people_without_connections(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-            ],
-            [],
-            [],
-        )
-        o = Organizer(t)
-        with pytest.raises(ValueError) as ex:
-            o.assign_levels()
-        msg = str(ex)
-        payload = Utils.extract_json(msg)
+            o.validate_preliminary_assignments()
+        payload = Utils.extract_json(str(ex))
         assert payload["unassigned_people"] == ["I2"]
-        assert payload["unassigned_families"] == []
-
-    def test_three_people_without_connections(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-                Person(id="I2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-            ],
-            [],
-            [],
-        )
-        o = Organizer(t)
-        with pytest.raises(ValueError) as ex:
-            o.assign_levels()
-        msg = str(ex)
-        payload = Utils.extract_json(msg)
-        assert payload["unassigned_people"] == ["I2", "I3"]
-        assert payload["unassigned_families"] == []
-
-    def test_one_family_one_parent_no_relationships(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
-            ],
-            [Family(id="F1")],
-            [],
-        )
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {0: ["I1"], 1: ["F1"]}
-
-    def test_one_family_two_parents_no_relationships(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
-            ],
-            [Family(id="F1")],
-            [],
-        )
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2"], 1: ["F1"]}
-
-    def test_three_families_two_parents_no_relationships(self):
-        t = FamilyTree(
-            [
-                Person(
-                    id="I1",
-                    fillcolor=PersonWrapper.M_COLOR,
-                    text_lines=[TextLine("man")],
-                    all_marriages=["F1", "F2", "F3"],
-                ),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
-            ],
-            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
-            [],
-        )
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2"], 1: ["F1", "F2", "F3"]}
-
-    def test_one_family_one_parent(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
-            ],
-            [Family(id="F1")],
-            [Relationship(from_id="I1", to_id="F1")],
-        )
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {0: ["I1"], 1: ["F1"]}
-
-    def test_one_family_two_parents(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
-            ],
-            [Family(id="F1")],
-            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
-        )
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2"], 1: ["F1"]}
-
-    def test_one_family_two_parents_unused_marriages(self):
-        t = FamilyTree(
-            [
-                Person(
-                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1", "F3"]
-                ),
-                Person(
-                    id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1", "F4"]
-                ),
-            ],
-            [Family(id="F1")],
-            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
-        )
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2"], 1: ["F1"]}
-
-    def test_two_unrelated_families_four_parents_three_marriages(self):
-        t = FamilyTree(
-            [
-                Person(
-                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1", "F2"]
-                ),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
-                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F3"]),
-                Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F3"]),
-            ],
-            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
-            [
-                Relationship(from_id="I1", to_id="F1"),
-                Relationship(from_id="I1", to_id="F2"),
-                Relationship(from_id="I2", to_id="F1"),
-                Relationship(from_id="I3", to_id="F3"),
-                Relationship(from_id="I4", to_id="F3"),
-            ],
-        )
-        o = Organizer(t)
-        with pytest.raises(ValueError) as ex:
-            o.assign_levels()
-        msg = str(ex)
-        payload = Utils.extract_json(msg)
-        assert payload["unassigned_people"] == ["I3", "I4"]
-        assert payload["unassigned_families"] == ["F3"]
-
-    def test_two_families_three_generations(self):
-        people = [
-            Person(
-                id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
-            ),
-            Person(
-                id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
-            ),
-            Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2"]),
-            Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
-            Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
-            Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
-            Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
-        ]
-        families = [Family(id="F1"), Family(id="F2")]
-        relationships = [
-            Relationship(from_id="I1", to_id="F1"),
-            Relationship(from_id="I2", to_id="F1"),
-            Relationship(from_id="F1", to_id="I3"),
-            Relationship(from_id="F1", to_id="I5"),
-            Relationship(from_id="I3", to_id="F2"),
-            Relationship(from_id="I4", to_id="F2"),
-            Relationship(from_id="F2", to_id="I6"),
-            Relationship(from_id="F2", to_id="I7"),
-        ]
-        o = Organizer(FamilyTree(people, families, relationships))
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4", "I5"], 3: ["F2"], 4: ["I6", "I7"]}
-
-    def test_call_assign_levels_twice(self):
-        people = [
-            Person(
-                id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
-            ),
-            Person(
-                id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
-            ),
-            Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2"]),
-            Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
-            Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
-            Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
-            Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
-        ]
-        families = [Family(id="F1"), Family(id="F2")]
-        relationships = [
-            Relationship(from_id="I1", to_id="F1"),
-            Relationship(from_id="I2", to_id="F1"),
-            Relationship(from_id="F1", to_id="I3"),
-            Relationship(from_id="F1", to_id="I5"),
-            Relationship(from_id="I3", to_id="F2"),
-            Relationship(from_id="I4", to_id="F2"),
-            Relationship(from_id="F2", to_id="I6"),
-            Relationship(from_id="F2", to_id="I7"),
-        ]
-        expected = {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4", "I5"], 3: ["F2"], 4: ["I6", "I7"]}
-        # Verify assign_levels() is idempotent when called a second time
-        o = Organizer(FamilyTree(people, families, relationships))
-        res = o.assign_levels()
-        assert res == expected
-        res = o.assign_levels()
-        assert res == expected
-
-    def test_three_generations_with_many_marriages(self):
-        people = [
-            Person(
-                id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
-            ),
-            Person(
-                id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
-            ),
-            Person(
-                id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2", "F3", "F4"]
-            ),
-            Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
-            Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
-            Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
-            Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
-            Person(
-                id="I8", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F3", "F5"]
-            ),
-            Person(id="I9", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F4"]),
-            Person(id="I10", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F5"]),
-        ]
-        families = [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4"), Family(id="F5")]
-        relationships = [
-            Relationship(from_id="I1", to_id="F1"),
-            Relationship(from_id="I2", to_id="F1"),
-            Relationship(from_id="F1", to_id="I3"),
-            Relationship(from_id="F1", to_id="I5"),
-            Relationship(from_id="I3", to_id="F2"),
-            Relationship(from_id="I4", to_id="F2"),
-            Relationship(from_id="F2", to_id="I6"),
-            Relationship(from_id="F2", to_id="I7"),
-            Relationship(from_id="I3", to_id="F3"),
-            Relationship(from_id="I8", to_id="F3"),
-            Relationship(from_id="I3", to_id="F4"),
-            Relationship(from_id="I9", to_id="F4"),
-            Relationship(from_id="I8", to_id="F5"),
-            Relationship(from_id="I10", to_id="F5"),
-        ]
-        expected = {
-            0: ["I1", "I2"],
-            1: ["F1"],
-            2: ["I10", "I3", "I4", "I5", "I8", "I9"],
-            3: ["F2", "F3", "F4", "F5"],
-            4: ["I6", "I7"],
-        }
-        # Test that we can parse tree starting with any node
-        for pos in range(len(people)):
-            # print(f"Test position {pos}")  # noqa: T201
-            people_clone = [*people]
-            moved = people_clone.pop(pos)
-            people_clone.insert(0, moved)
-            o = Organizer(FamilyTree(people_clone, families, relationships))
-            res = o.assign_levels()
-            assert res == expected
-
-    def test_uncle_marries_niece(self):
-        # G has two children, A (uncle) and B. B's child N (niece) marries A.
-        # This closes a cycle in the person/family graph (G -> A -> N -> B -> G). Blood
-        # relationships pin A's level (sibling of B), so the cross-generational marriage
-        # FAN cannot pull A down; FAN is pushed below its youngest spouse N instead and
-        # its edge to A spans levels.
-        people = [
-            Person(id="G", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandparent")], all_marriages=["FG"]),
-            Person(
-                id="A", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("uncle")], all_marriages=["FA", "FAN"]
-            ),
-            Person(id="B", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("parent")], all_marriages=["FB"]),
-            Person(id="N", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("niece")], all_marriages=["FAN"]),
-        ]
-        families = [Family(id="FG"), Family(id="FA"), Family(id="FB"), Family(id="FAN")]
-        relationships = [
-            Relationship(from_id="G", to_id="FG"),
-            Relationship(from_id="FG", to_id="A"),
-            Relationship(from_id="FG", to_id="B"),
-            Relationship(from_id="A", to_id="FA"),
-            Relationship(from_id="B", to_id="FB"),
-            Relationship(from_id="FB", to_id="N"),
-            Relationship(from_id="A", to_id="FAN"),
-            Relationship(from_id="N", to_id="FAN"),
-        ]
-        o = Organizer(FamilyTree(people, families, relationships))
-        res = o.assign_levels()
-        assert res == {0: ["G"], 1: ["FG"], 2: ["A", "B"], 3: ["FA", "FB"], 4: ["N"], 5: ["FAN"]}
-
-    def test_uncle_marries_niece_without_own_second_marriage(self):
-        # G has two children, A (uncle) and B. B's child N (niece) marries A.
-        # This closes a cycle in the person/family graph (G -> A -> N -> B -> G). Blood
-        # relationships pin A's level (sibling of B), so the cross-generational marriage
-        # FAN cannot pull A down; FAN is pushed below its youngest spouse N instead and
-        # its edge to A spans levels.
-        people = [
-            Person(id="G", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandparent")], all_marriages=["FG"]),
-            Person(id="A", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("uncle")], all_marriages=["FAN"]),
-            Person(id="B", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("parent")], all_marriages=["FB"]),
-            Person(id="N", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("niece")], all_marriages=["FAN"]),
-        ]
-        families = [Family(id="FG"), Family(id="FB"), Family(id="FAN")]
-        relationships = [
-            Relationship(from_id="G", to_id="FG"),
-            Relationship(from_id="FG", to_id="A"),
-            Relationship(from_id="FG", to_id="B"),
-            Relationship(from_id="B", to_id="FB"),
-            Relationship(from_id="FB", to_id="N"),
-            Relationship(from_id="A", to_id="FAN"),
-            Relationship(from_id="N", to_id="FAN"),
-        ]
-        o = Organizer(FamilyTree(people, families, relationships))
-        res = o.assign_levels()
-        assert res == {0: ["G"], 1: ["FG"], 2: ["A", "B"], 3: ["FB"], 4: ["N"], 5: ["FAN"]}
-
-    def test_grandfather_marries_grandniece(self):
-        # P has two children, Gf (grandfather) and S (sibling). S's child N has child GN
-        # (Gf's grandniece), who marries Gf. This closes a cycle spanning three generations
-        # (P -> Gf -> GN -> N -> S -> P), a wider gap than test_uncle_marries_niece. Gf's level
-        # is locked in via its blood relationship to P as soon as it is assigned, so the much
-        # deeper traversal down S -> N -> GN cannot pull Gf down when it reaches the marriage
-        # to GN.
-        people = [
-            Person(id="P", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("root")], all_marriages=["FP"]),
-            Person(
-                id="Gf",
-                fillcolor=PersonWrapper.M_COLOR,
-                text_lines=[TextLine("grandfather")],
-                all_marriages=["FGf", "FGD"],
-            ),
-            Person(id="S", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("sibling")], all_marriages=["FS"]),
-            Person(id="N", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("nephew")], all_marriages=["FN"]),
-            Person(
-                id="GN", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandniece")], all_marriages=["FGN"]
-            ),
-        ]
-        families = [Family(id="FP"), Family(id="FGf"), Family(id="FS"), Family(id="FN"), Family(id="FGN")]
-        relationships = [
-            Relationship(from_id="P", to_id="FP"),
-            Relationship(from_id="FP", to_id="Gf"),
-            Relationship(from_id="FP", to_id="S"),
-            Relationship(from_id="Gf", to_id="FGf"),
-            Relationship(from_id="S", to_id="FS"),
-            Relationship(from_id="FS", to_id="N"),
-            Relationship(from_id="N", to_id="FN"),
-            Relationship(from_id="FN", to_id="GN"),
-            Relationship(from_id="Gf", to_id="FGN"),
-            Relationship(from_id="GN", to_id="FGN"),
-        ]
-        o = Organizer(FamilyTree(people, families, relationships))
-        res = o.assign_levels()
-        assert res == {
-            0: ["P"],
-            1: ["FP"],
-            2: ["Gf", "S"],
-            3: ["FGf", "FS"],
-            4: ["N"],
-            5: ["FN"],
-            6: ["GN"],
-            7: ["FGN"],
-        }
-
-    def test_junction_at_grandchild_level(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F1"]),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Zoe")], all_marriages=["F2"]),
-                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Bob")], all_marriages=["F3"]),
-                Person(id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Albert")], all_marriages=["F4"]),
-                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("adopted child")]),
-            ],
-            [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4")],
-            [
-                Relationship(from_id="I1", to_id="F1"),
-                Relationship(from_id="F1", to_id="I2"),
-                Relationship(from_id="I2", to_id="F2"),
-                Relationship(from_id="F2", to_id="I5"),
-                Relationship(from_id="I3", to_id="F3"),
-                Relationship(from_id="F3", to_id="I5"),
-                Relationship(from_id="I4", to_id="F4"),
-                Relationship(from_id="F4", to_id="I5"),
-            ],
-        )
-        o = Organizer(t)
-        res = o.assign_levels()
-        assert res == {
-            0: ["I1"],
-            1: ["F1"],
-            2: ["I2", "I3", "I4"],
-            3: ["F2", "F3", "F4"],
-            4: ["I5"],
-        }
-
-    def test_child_adopted_by_grandparents_on_mother_side(self):
-        # I5 is the biological child of I3 (mother) and I4 (father) via F2 and is also
-        # adopted (dashed edge) by the maternal grandparents' family F1. Only the birth
-        # link to F2 is rigid; the adopted link is soft, so F1 stays on the grandparent
-        # generation and its edge to I5 spans levels instead of dragging F1 and F2 onto
-        # the same level (which would be unsolvable, since F2's parent I3 is herself a
-        # child of F1).
-        t = FamilyTree(
-            [
-                Person(
-                    id="I1",
-                    fillcolor=PersonWrapper.M_COLOR,
-                    text_lines=[TextLine("grandfather")],
-                    all_marriages=["F1"],
-                ),
-                Person(
-                    id="I2",
-                    fillcolor=PersonWrapper.F_COLOR,
-                    text_lines=[TextLine("grandmother")],
-                    all_marriages=["F1"],
-                ),
-                Person(id="I3", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F2"]),
-                Person(id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("father")], all_marriages=["F2"]),
-                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
-            ],
-            [Family(id="F1"), Family(id="F2")],
-            [
-                Relationship(from_id="I1", to_id="F1"),
-                Relationship(from_id="I2", to_id="F1"),
-                Relationship(from_id="F1", to_id="I3"),
-                Relationship(from_id="I3", to_id="F2"),
-                Relationship(from_id="I4", to_id="F2"),
-                Relationship(from_id="F2", to_id="I5"),
-                Relationship(from_id="F1", to_id="I5", attrs={"style": "dashed"}),
-            ],
-        )
-        o = Organizer(t)
-        # The birth family stays primary; the grandparents' family is only an extra origin.
-        assert o.people["I5"].primary_parent_family_id == "F2"
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4"], 3: ["F2"], 4: ["I5"]}
-
-    def test_child_adopted_by_older_sister(self):
-        # I5 is the birth child of I1 and I2 via F1 and is also adopted (dashed edge)
-        # by F2, the family of his older sister I3 and her husband I4. The adoption
-        # makes both of I5's links soft, so he sinks below all of his origin families:
-        # one level under F2, next to where its birth children would sit, while the
-        # birth edge from F1 spans two levels down to him.
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("father")], all_marriages=["F1"]),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F1"]),
-                Person(
-                    id="I3",
-                    fillcolor=PersonWrapper.F_COLOR,
-                    text_lines=[TextLine("older-sister")],
-                    all_marriages=["F2"],
-                ),
-                Person(
-                    id="I4",
-                    fillcolor=PersonWrapper.M_COLOR,
-                    text_lines=[TextLine("brother-in-law")],
-                    all_marriages=["F2"],
-                ),
-                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
-            ],
-            [Family(id="F1"), Family(id="F2")],
-            [
-                Relationship(from_id="I1", to_id="F1"),
-                Relationship(from_id="I2", to_id="F1"),
-                Relationship(from_id="F1", to_id="I3"),
-                Relationship(from_id="F1", to_id="I5"),
-                Relationship(from_id="I3", to_id="F2"),
-                Relationship(from_id="I4", to_id="F2"),
-                Relationship(from_id="F2", to_id="I5", attrs={"style": "dashed"}),
-            ],
-        )
-        o = Organizer(t)
-        assert o.people["I5"].primary_parent_family_id == "F1"
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4"], 3: ["F2"], 4: ["I5"]}
-
-    def test_adoptive_family_reached_only_through_adopted_child(self):
-        # I3 is the birth child of I1 and I2 via F1 and is also adopted (dashed edge)
-        # by F2, whose single parent I4 has no other connection to the tree. The only
-        # path to F2 and I4 runs through the soft adopted link from I3, so placement
-        # must follow adoption links from the child's side; the adoptive family lands
-        # one level above the child, next to the birth family.
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
-                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
-                Person(
-                    id="I4",
-                    fillcolor=PersonWrapper.F_COLOR,
-                    text_lines=[TextLine("adoptive-mother")],
-                    all_marriages=["F2"],
-                ),
-            ],
-            [Family(id="F1"), Family(id="F2")],
-            [
-                Relationship(from_id="I1", to_id="F1"),
-                Relationship(from_id="I2", to_id="F1"),
-                Relationship(from_id="F1", to_id="I3"),
-                Relationship(from_id="I4", to_id="F2"),
-                Relationship(from_id="F2", to_id="I3", attrs={"style": "dashed"}),
-            ],
-        )
-        o = Organizer(t)
-        assert o.people["I3"].primary_parent_family_id == "F1"
-        res = o.assign_levels()
-        assert res == {0: ["I1", "I2", "I4"], 1: ["F1", "F2"], 2: ["I3"]}
-
-    def test_family_without_parents_at_top_of_hierarchy(self):
-        # The constructor always registers whoever references a family in all_marriages
-        # as one of its parents, so a family can't naturally end up with an empty parents
-        # list. F0 is only referenced via I1 (F0 -> I1 makes I1 a child of F0, not a
-        # parent) purely to satisfy the "family must be referenced" check; its parents
-        # list is cleared afterward to model a family whose parents are unknown (e.g. a
-        # Gramps export that stops short of the grandparents). Such a family has no
-        # parents to climb further, so it ends up at the top of the hierarchy with only
-        # its children below it.
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
-                Person(
-                    id="I2",
-                    fillcolor=PersonWrapper.F_COLOR,
-                    text_lines=[TextLine("woman")],
-                    all_marriages=["F1"],
-                ),
-            ],
-            [Family(id="F0"), Family(id="F1")],
-            [
-                Relationship(from_id="F0", to_id="I1"),
-                Relationship(from_id="I1", to_id="F1"),
-                Relationship(from_id="I2", to_id="F1"),
-            ],
-        )
-        o = Organizer(t)
-        o.families["F0"].parents = []
-        res = o.assign_levels()
-        assert res == {0: ["F0"], 1: ["I1", "I2"], 2: ["F1"]}
-
-    def test_one_family_one_parent_only_relationships(self):
-        t = FamilyTree(
-            [
-                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
-            ],
-            [Family(id="F1")],
-            [Relationship(from_id="I1", to_id="F1")],
-        )
-        o = Organizer(t)
-        with pytest.raises(ValueError) as ex:
-            o.assign_levels()
-        msg = str(ex)
-        payload = Utils.extract_json(msg)
-        assert payload["unassigned_people"] == []
         assert payload["unassigned_families"] == ["F1"]
-
-    def test_three_families_two_parents_no_relationships_unused_family(self):
-        t = FamilyTree(
-            [
-                Person(
-                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1", "F2"]
-                ),
-                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
-            ],
-            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
-            [],
-        )
-        o = Organizer(t)
-        with pytest.raises(ValueError) as ex:
-            o.assign_levels()
-        msg = str(ex)
-        payload = Utils.extract_json(msg)
-        assert payload["unassigned_people"] == []
-        assert payload["unassigned_families"] == ["F3"]
+        assert payload["assigned_people"] == ["I1"]
+        assert payload["assigned_families"] == []
 
 
 class TestValidateFinalAssignments:
@@ -2628,46 +2025,32 @@ def three_generations_tree() -> FamilyTree:
     )
 
 
-class TestTraverseDescendants:
-    def test_three_generations_from_top_family(self):
-        t = three_generations_tree()
-        o = Organizer(t)
-        res = o.traverse_descendants(t, "F1")
-        assert res.distances == {
-            "F1": 0,
-            "I1": -1,
-            "I2": -1,
-            "I3": 1,
-            "I5": 1,
-            "F2": 2,
-            "I4": 1,
-            "I6": 3,
-            "I7": 3,
-        }
-        assert [p.id for p in res.people] == ["I1", "I2", "I3", "I4", "I5", "I6", "I7"]
-        assert [f.id for f in res.families] == ["F1", "F2"]
-        assert [r.lookup_key for r in res.relationships] == [
-            "I1_F1",
-            "I2_F1",
-            "F1_I3",
-            "F1_I5",
-            "I3_F2",
-            "I4_F2",
-            "F2_I6",
-            "F2_I7",
-        ]
+class TestInitDescendantDistances:
+    def test_unknown_family_raises_value_error(self):
+        o = Organizer(FamilyTree([], [Family(id="F1")], []))
+        with pytest.raises(ValueError) as ex:
+            o.init_descendant_distances("F9", None)
+        assert "'F9'" in str(ex.value)
+        assert "not a known family" in str(ex.value)
 
-    def test_mid_tree_family_excludes_ancestors_and_works_on_a_passed_tree(self):
-        # The organizer is built around a different (empty) tree; the method must
-        # traverse the tree it is given. Starting from F2, everything above it (F1,
-        # I1, I2, I5) stays out, and F2's parents get distance -1.
-        t = three_generations_tree()
-        o = Organizer(FamilyTree([], [], []))
-        res = o.traverse_descendants(t, "F2")
-        assert res.distances == {"F2": 0, "I3": -1, "I4": -1, "I6": 1, "I7": 1}
-        assert [p.id for p in res.people] == ["I3", "I4", "I6", "I7"]
-        assert [f.id for f in res.families] == ["F2"]
-        assert [r.lookup_key for r in res.relationships] == ["I3_F2", "I4_F2", "F2_I6", "F2_I7"]
+    def test_none_distances_start_the_founder_at_zero(self):
+        o = Organizer(FamilyTree([], [Family(id="F1")], []))
+        assert o.init_descendant_distances("F1", None) == {"F1": 0}
+
+    def test_given_distances_are_returned_unchanged(self):
+        # The dictionary itself is returned, so the traversal updates it in place.
+        o = Organizer(FamilyTree([], [Family(id="F1")], []))
+        distances = {"F1": 4, "X": 5}
+        res = o.init_descendant_distances("F1", distances)
+        assert res is distances
+        assert res == {"F1": 4, "X": 5}
+
+    def test_founder_missing_from_the_given_distances_raises_value_error(self):
+        o = Organizer(FamilyTree([], [Family(id="F1")], []))
+        with pytest.raises(ValueError) as ex:
+            o.init_descendant_distances("F1", {"X": 3})
+        assert "'F1'" in str(ex.value)
+        assert "no distance in the given dictionary" in str(ex.value)
 
 
 class TestMeasureDescendantDistances:
@@ -3273,116 +2656,42 @@ class TestFindClosestCommonNode:
         assert o.find_closest_common_node(first, second) is None
 
 
-class TestMergeDescendantDistances:
-    def test_second_traversal_is_shifted_to_align_the_common_node(self):
-        # B is a grandchild of F1, so FAB sits at 2 in F0's traversal but at 4 in
-        # F1's. Merging shifts the second traversal by -2, aligning FAB and
-        # placing F1 above F0's founders at -2.
-        t = FamilyTree(
-            [
-                Person(id="A", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["FAB"]),
-                Person(id="P", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["FP"]),
-                Person(
-                    id="B",
-                    fillcolor=PersonWrapper.F_COLOR,
-                    text_lines=[TextLine("granddaughter")],
-                    all_marriages=["FAB"],
-                ),
-            ],
-            [Family(id="F0"), Family(id="F1"), Family(id="FP"), Family(id="FAB")],
-            [
-                Relationship(from_id="F0", to_id="A"),
-                Relationship(from_id="F1", to_id="P"),
-                Relationship(from_id="P", to_id="FP"),
-                Relationship(from_id="FP", to_id="B"),
-                Relationship(from_id="A", to_id="FAB"),
-                Relationship(from_id="B", to_id="FAB"),
-            ],
-        )
-        o = Organizer(t)
-        first = o.measure_descendant_distances("F0")
-        second = o.measure_descendant_distances("F1")
-        assert first == {"F0": 0, "A": 1, "FAB": 2}
-        assert second == {"F1": 0, "P": 1, "FP": 2, "B": 3, "FAB": 4}
-        merged = o.merge_descendant_distances(first, second)
-        assert merged == {"F0": 0, "A": 1, "FAB": 2, "F1": -2, "P": -1, "FP": 0, "B": 1}
-        # Merging in the other order shifts the first traversal down instead.
-        merged = o.merge_descendant_distances(second, first)
-        assert merged == {"F1": 0, "P": 1, "FP": 2, "B": 3, "FAB": 4, "F0": 2, "A": 3}
+class TestMergeShiftedDistances:
+    def make_organizer(self):
+        # merge_shifted_distances works on plain distance dictionaries and never
+        # touches the tree, so an empty one is enough.
+        return Organizer(FamilyTree([], [], []))
 
-    def test_node_in_both_traversals_keeps_the_longest_distance(self):
-        # The lines merge at FAB, so no shift is needed. X is reached at 5 through
-        # F0's line (born to FG) but at 3 through F1's line (adopted by FB2); the
-        # longest distance wins, mirroring measure_descendant_distances.
-        t = FamilyTree(
-            [
-                Person(id="A", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["FAB"]),
-                Person(id="A2", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")], all_marriages=["FA2"]),
-                Person(
-                    id="B", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")], all_marriages=["FAB"]
-                ),
-                Person(
-                    id="B2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")], all_marriages=["FB2"]
-                ),
-                Person(
-                    id="G", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandson")], all_marriages=["FG"]
-                ),
-                Person(id="X", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
-            ],
-            [Family(id="F0"), Family(id="F1"), Family(id="FAB"), Family(id="FA2"), Family(id="FG"), Family(id="FB2")],
-            [
-                Relationship(from_id="F0", to_id="A"),
-                Relationship(from_id="F0", to_id="A2"),
-                Relationship(from_id="F1", to_id="B"),
-                Relationship(from_id="F1", to_id="B2"),
-                Relationship(from_id="A", to_id="FAB"),
-                Relationship(from_id="B", to_id="FAB"),
-                Relationship(from_id="A2", to_id="FA2"),
-                Relationship(from_id="FA2", to_id="G"),
-                Relationship(from_id="G", to_id="FG"),
-                Relationship(from_id="FG", to_id="X"),
-                Relationship(from_id="B2", to_id="FB2"),
-                Relationship(from_id="FB2", to_id="X", attrs={"style": "dashed"}),
-            ],
-        )
-        o = Organizer(t)
-        first = o.measure_descendant_distances("F0")
-        second = o.measure_descendant_distances("F1")
-        assert first == {"F0": 0, "A": 1, "A2": 1, "FAB": 2, "FA2": 2, "G": 3, "FG": 4, "X": 5}
-        assert second == {"F1": 0, "B": 1, "B2": 1, "FAB": 2, "FB2": 2, "X": 3}
-        expected = {
-            "F0": 0,
-            "A": 1,
-            "A2": 1,
-            "FAB": 2,
-            "FA2": 2,
-            "G": 3,
-            "FG": 4,
-            "X": 5,
-            "F1": 0,
-            "B": 1,
-            "B2": 1,
-            "FB2": 2,
-        }
-        assert o.merge_descendant_distances(first, second) == expected
-        assert o.merge_descendant_distances(second, first) == expected
+    def test_second_dictionary_is_shifted_by_the_given_amount(self):
+        o = self.make_organizer()
+        res = o.merge_shifted_distances({"A": 0, "FA": 1}, {"B": 1, "FB": 2}, 3)
+        assert res == {"A": 0, "FA": 1, "B": 4, "FB": 5}
 
-    def test_disjoint_traversals_raise_value_error(self):
-        # The two founders' families have no descendants in common.
-        t = FamilyTree(
-            [
-                Person(id="A", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
-                Person(id="B", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
-            ],
-            [Family(id="F0"), Family(id="F1")],
-            [Relationship(from_id="F0", to_id="A"), Relationship(from_id="F1", to_id="B")],
-        )
-        o = Organizer(t)
-        first = o.measure_descendant_distances("F0")
-        second = o.measure_descendant_distances("F1")
-        with pytest.raises(ValueError) as ex:
-            o.merge_descendant_distances(first, second)
-        assert "share no node" in str(ex.value)
+    def test_negative_shift_moves_the_second_dictionary_up(self):
+        o = self.make_organizer()
+        res = o.merge_shifted_distances({"A": 0}, {"B": 3}, -2)
+        assert res == {"A": 0, "B": 1}
+
+    def test_common_node_keeps_the_longest_distance_from_the_first_dictionary(self):
+        # A sits at 5 in the first dictionary, deeper than its shifted 3.
+        o = self.make_organizer()
+        res = o.merge_shifted_distances({"A": 5, "B": 0}, {"A": 1, "C": 2}, 2)
+        assert res == {"A": 5, "B": 0, "C": 4}
+
+    def test_common_node_keeps_the_longest_distance_from_the_second_dictionary(self):
+        # Shifted by 6, A lands at 7 and pushes past its 5 in the first dictionary.
+        o = self.make_organizer()
+        res = o.merge_shifted_distances({"A": 5, "B": 0}, {"A": 1, "C": 2}, 6)
+        assert res == {"A": 7, "B": 0, "C": 8}
+
+    def test_input_dictionaries_are_not_mutated(self):
+        o = self.make_organizer()
+        first = {"A": 0}
+        second = {"A": 3, "B": 1}
+        res = o.merge_shifted_distances(first, second, 1)
+        assert res == {"A": 4, "B": 2}
+        assert first == {"A": 0}
+        assert second == {"A": 3, "B": 1}
 
 
 class TestMeasureDescendantDistancesWithSeed:
@@ -3415,7 +2724,7 @@ class TestMeasureDescendantDistancesWithSeed:
         assert "no distance" in str(ex.value)
 
 
-class TestAssignLevels2:
+class TestAssignLevels:
     def test_two_founder_families_merge_at_a_marriage_and_spouses_are_added(self):
         # A descends from F0 and B from F1; the traversals merge at FAB. Their
         # child C married outsider S, who is added at the end by include_spouses.
@@ -3444,7 +2753,7 @@ class TestAssignLevels2:
             ],
         )
         o = Organizer(t)
-        res = o.assign_levels2()
+        res = o.assign_levels()
         assert res == {0: ["F0", "F1"], 1: ["A", "B"], 2: ["FAB"], 3: ["C", "S"], 4: ["FC"]}
 
     def test_second_founder_family_of_a_grandchild_is_shifted_up(self):
@@ -3472,7 +2781,7 @@ class TestAssignLevels2:
             ],
         )
         o = Organizer(t)
-        res = o.assign_levels2()
+        res = o.assign_levels()
         assert res == {0: ["F1"], 1: ["P"], 2: ["F0", "FP"], 3: ["A", "B"], 4: ["FAB"]}
 
     def test_founder_family_without_a_common_node_is_merged_once_a_bridge_arrives(self):
@@ -3502,7 +2811,7 @@ class TestAssignLevels2:
             ],
         )
         o = Organizer(t)
-        res = o.assign_levels2()
+        res = o.assign_levels()
         assert res == {0: ["F1", "F2", "F3"], 1: ["A", "B", "C", "D"], 2: ["FAC", "FBD"]}
 
     def test_disconnected_founder_families_raise_value_error(self):
@@ -3517,7 +2826,7 @@ class TestAssignLevels2:
         )
         o = Organizer(t)
         with pytest.raises(ValueError) as ex:
-            o.assign_levels2()
+            o.assign_levels()
         assert "['F1']" in str(ex.value)
         assert "share no node" in str(ex.value)
 
@@ -3536,12 +2845,12 @@ class TestAssignLevels2:
             [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I1", to_id="F2")],
         )
         o = Organizer(t)
-        assert o.assign_levels2() == {0: ["I1"], 1: ["F1", "F2"]}
+        assert o.assign_levels() == {0: ["I1"], 1: ["F1", "F2"]}
 
     def test_family_without_people_gets_level_zero(self):
         t = FamilyTree([], [Family(id="F1")], [])
         o = Organizer(t)
-        assert o.assign_levels2() == {0: ["F1"]}
+        assert o.assign_levels() == {0: ["F1"]}
 
     def test_tree_without_families_returns_dictionary_with_one_person(self):
         t = FamilyTree(
@@ -3550,7 +2859,7 @@ class TestAssignLevels2:
             [],
         )
         o = Organizer(t)
-        assert o.assign_levels2() == {0: ["A"]}
+        assert o.assign_levels() == {0: ["A"]}
 
     def test_two_people_without_families_raise_value_error(self):
         # With no families there is nothing to connect A and B, so no common
@@ -3565,7 +2874,7 @@ class TestAssignLevels2:
         )
         o = Organizer(t)
         with pytest.raises(ValueError) as ex:
-            o.assign_levels2()
+            o.assign_levels()
         assert "['A', 'B']" in str(ex.value)
         assert "share no common nodes" in str(ex.value)
 
@@ -3582,7 +2891,7 @@ class TestAssignLevels2:
         )
         o = Organizer(t)
         with pytest.raises(ValueError) as ex:
-            o.assign_levels2()
+            o.assign_levels()
         assert "['A', 'B', 'C']" in str(ex.value)
         assert "share no common nodes" in str(ex.value)
 
@@ -3656,7 +2965,7 @@ class TestAssignLevels2:
             "FY": 8,
             "Z": 9,
         }
-        res = o.assign_levels2()
+        res = o.assign_levels()
         assert res == {
             0: ["F0", "F1"],
             1: ["A", "A2", "B", "B2"],
@@ -3741,7 +3050,7 @@ class TestAssignLevels2:
             "Z": 9,
         }
         assert second == {"F1": 0, "B": 1, "B2": 1, "FAB": 2, "FB2": 2, "X": 3, "FX": 4, "Y": 5, "FY": 6, "Z": 7}
-        res = o.assign_levels2()
+        res = o.assign_levels()
         assert res == {
             0: ["F0", "F1"],
             1: ["A", "A2", "B", "B2"],
@@ -3834,7 +3143,7 @@ class TestAssignLevels2:
             "FY": 8,
             "Z": 9,
         }
-        res = o.assign_levels2()
+        res = o.assign_levels()
         assert res == {
             0: ["F0", "F1"],
             1: ["A", "A2", "B", "B2"],
@@ -3927,7 +3236,7 @@ class TestAssignLevels2:
             "Z": 9,
         }
         assert second == {"F1": 0, "B": 1, "B2": 1, "FAB": 2, "FB2": 2, "X": 3, "FXY": 4, "Y": 5, "FY": 6, "Z": 7}
-        res = o.assign_levels2()
+        res = o.assign_levels()
         assert res == {
             0: ["F0", "F1"],
             1: ["A", "A2", "B", "B2"],
@@ -3940,3 +3249,545 @@ class TestAssignLevels2:
             8: ["FY"],
             9: ["Z"],
         }
+
+    def test_raises_when_person_is_both_parent_and_child_of_same_family(self):
+        # Corrupt data: I1 is simultaneously a parent and a child of F1. F1 cannot be
+        # a founder family because its parent I1 has origins, so no traversal ever
+        # reaches F1 and it is reported as unassigned.
+        t = FamilyTree(
+            [Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"])],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="F1", to_id="I1")],
+        )
+        o = Organizer(t)
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        payload = Utils.extract_json(str(ex))
+        assert payload["unassigned_people"] == []
+        assert payload["unassigned_families"] == ["F1"]
+
+    def test_raises_when_person_is_their_own_grandparent(self):
+        # Corrupt data: I1 is a parent of F1, whose child I2 is a parent of F2, whose
+        # child is I1 again. The cycle gives every parent origins, so no family
+        # qualifies as a founder family and the people are reported as disconnected.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
+            ],
+            [Family(id="F1"), Family(id="F2")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="I2", to_id="F2"),
+                Relationship(from_id="F2", to_id="I1"),
+            ],
+        )
+        o = Organizer(t)
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        msg = str(ex.value)
+        assert "['I1', 'I2']" in msg
+        assert "share no common nodes" in msg
+
+    def test_empty_tree(self):
+        t = FamilyTree([], [], [])
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {}
+
+    def test_one_family_one_parent_no_relationships(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {0: ["I1"], 1: ["F1"]}
+
+    def test_one_family_two_parents_no_relationships(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {0: ["I1", "I2"], 1: ["F1"]}
+
+    def test_one_family_one_parent(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1")],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {0: ["I1"], 1: ["F1"]}
+
+    def test_one_family_two_parents(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {0: ["I1", "I2"], 1: ["F1"]}
+
+    def test_one_family_two_parents_unused_marriages(self):
+        t = FamilyTree(
+            [
+                Person(
+                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1", "F3"]
+                ),
+                Person(
+                    id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1", "F4"]
+                ),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1"), Relationship(from_id="I2", to_id="F1")],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {0: ["I1", "I2"], 1: ["F1"]}
+
+    def test_two_families_three_generations(self):
+        people = [
+            Person(
+                id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
+            ),
+            Person(
+                id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
+            ),
+            Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2"]),
+            Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
+            Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
+            Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
+            Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
+        ]
+        families = [Family(id="F1"), Family(id="F2")]
+        relationships = [
+            Relationship(from_id="I1", to_id="F1"),
+            Relationship(from_id="I2", to_id="F1"),
+            Relationship(from_id="F1", to_id="I3"),
+            Relationship(from_id="F1", to_id="I5"),
+            Relationship(from_id="I3", to_id="F2"),
+            Relationship(from_id="I4", to_id="F2"),
+            Relationship(from_id="F2", to_id="I6"),
+            Relationship(from_id="F2", to_id="I7"),
+        ]
+        o = Organizer(FamilyTree(people, families, relationships))
+        res = o.assign_levels()
+        assert res == {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4", "I5"], 3: ["F2"], 4: ["I6", "I7"]}
+
+    def test_call_assign_levels2_twice(self):
+        people = [
+            Person(
+                id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
+            ),
+            Person(
+                id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
+            ),
+            Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2"]),
+            Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
+            Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
+            Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
+            Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
+        ]
+        families = [Family(id="F1"), Family(id="F2")]
+        relationships = [
+            Relationship(from_id="I1", to_id="F1"),
+            Relationship(from_id="I2", to_id="F1"),
+            Relationship(from_id="F1", to_id="I3"),
+            Relationship(from_id="F1", to_id="I5"),
+            Relationship(from_id="I3", to_id="F2"),
+            Relationship(from_id="I4", to_id="F2"),
+            Relationship(from_id="F2", to_id="I6"),
+            Relationship(from_id="F2", to_id="I7"),
+        ]
+        expected = {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4", "I5"], 3: ["F2"], 4: ["I6", "I7"]}
+        # Verify assign_levels2() is idempotent when called a second time
+        o = Organizer(FamilyTree(people, families, relationships))
+        res = o.assign_levels()
+        assert res == expected
+        res = o.assign_levels()
+        assert res == expected
+
+    def test_three_generations_with_many_marriages(self):
+        people = [
+            Person(
+                id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandfather")], all_marriages=["F1"]
+            ),
+            Person(
+                id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandmother")], all_marriages=["F1"]
+            ),
+            Person(
+                id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F2", "F3", "F4"]
+            ),
+            Person(id="I4", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F2"]),
+            Person(id="I5", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")]),
+            Person(id="I6", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("son")]),
+            Person(id="I7", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("daughter")]),
+            Person(
+                id="I8", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F3", "F5"]
+            ),
+            Person(id="I9", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F4"]),
+            Person(id="I10", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F5"]),
+        ]
+        families = [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4"), Family(id="F5")]
+        relationships = [
+            Relationship(from_id="I1", to_id="F1"),
+            Relationship(from_id="I2", to_id="F1"),
+            Relationship(from_id="F1", to_id="I3"),
+            Relationship(from_id="F1", to_id="I5"),
+            Relationship(from_id="I3", to_id="F2"),
+            Relationship(from_id="I4", to_id="F2"),
+            Relationship(from_id="F2", to_id="I6"),
+            Relationship(from_id="F2", to_id="I7"),
+            Relationship(from_id="I3", to_id="F3"),
+            Relationship(from_id="I8", to_id="F3"),
+            Relationship(from_id="I3", to_id="F4"),
+            Relationship(from_id="I9", to_id="F4"),
+            Relationship(from_id="I8", to_id="F5"),
+            Relationship(from_id="I10", to_id="F5"),
+        ]
+        expected = {
+            0: ["I1", "I2"],
+            1: ["F1"],
+            2: ["I10", "I3", "I4", "I5", "I8", "I9"],
+            3: ["F2", "F3", "F4", "F5"],
+            4: ["I6", "I7"],
+        }
+        # Test that we can parse tree starting with any node
+        for pos in range(len(people)):
+            # print(f"Test position {pos}")  # noqa: T201
+            people_clone = [*people]
+            moved = people_clone.pop(pos)
+            people_clone.insert(0, moved)
+            o = Organizer(FamilyTree(people_clone, families, relationships))
+            res = o.assign_levels()
+            assert res == expected
+
+    def test_uncle_marries_niece(self):
+        # G has two children, A (uncle) and B. B's child N (niece) marries A.
+        # This closes a cycle in the person/family graph (G -> A -> N -> B -> G). Blood
+        # relationships pin A's level (sibling of B), so the cross-generational marriage
+        # FAN cannot pull A down; FAN is pushed below its youngest spouse N instead and
+        # its edge to A spans levels.
+        people = [
+            Person(id="G", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandparent")], all_marriages=["FG"]),
+            Person(
+                id="A", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("uncle")], all_marriages=["FA", "FAN"]
+            ),
+            Person(id="B", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("parent")], all_marriages=["FB"]),
+            Person(id="N", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("niece")], all_marriages=["FAN"]),
+        ]
+        families = [Family(id="FG"), Family(id="FA"), Family(id="FB"), Family(id="FAN")]
+        relationships = [
+            Relationship(from_id="G", to_id="FG"),
+            Relationship(from_id="FG", to_id="A"),
+            Relationship(from_id="FG", to_id="B"),
+            Relationship(from_id="A", to_id="FA"),
+            Relationship(from_id="B", to_id="FB"),
+            Relationship(from_id="FB", to_id="N"),
+            Relationship(from_id="A", to_id="FAN"),
+            Relationship(from_id="N", to_id="FAN"),
+        ]
+        o = Organizer(FamilyTree(people, families, relationships))
+        res = o.assign_levels()
+        assert res == {0: ["G"], 1: ["FG"], 2: ["A", "B"], 3: ["FA", "FB"], 4: ["N"], 5: ["FAN"]}
+
+    def test_uncle_marries_niece_without_own_second_marriage(self):
+        # G has two children, A (uncle) and B. B's child N (niece) marries A.
+        # This closes a cycle in the person/family graph (G -> A -> N -> B -> G). Blood
+        # relationships pin A's level (sibling of B), so the cross-generational marriage
+        # FAN cannot pull A down; FAN is pushed below its youngest spouse N instead and
+        # its edge to A spans levels.
+        people = [
+            Person(id="G", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("grandparent")], all_marriages=["FG"]),
+            Person(id="A", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("uncle")], all_marriages=["FAN"]),
+            Person(id="B", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("parent")], all_marriages=["FB"]),
+            Person(id="N", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("niece")], all_marriages=["FAN"]),
+        ]
+        families = [Family(id="FG"), Family(id="FB"), Family(id="FAN")]
+        relationships = [
+            Relationship(from_id="G", to_id="FG"),
+            Relationship(from_id="FG", to_id="A"),
+            Relationship(from_id="FG", to_id="B"),
+            Relationship(from_id="B", to_id="FB"),
+            Relationship(from_id="FB", to_id="N"),
+            Relationship(from_id="A", to_id="FAN"),
+            Relationship(from_id="N", to_id="FAN"),
+        ]
+        o = Organizer(FamilyTree(people, families, relationships))
+        res = o.assign_levels()
+        assert res == {0: ["G"], 1: ["FG"], 2: ["A", "B"], 3: ["FB"], 4: ["N"], 5: ["FAN"]}
+
+    def test_grandfather_marries_grandniece(self):
+        # P has two children, Gf (grandfather) and S (sibling). S's child N has child GN
+        # (Gf's grandniece), who marries Gf. This closes a cycle spanning three generations
+        # (P -> Gf -> GN -> N -> S -> P), a wider gap than test_uncle_marries_niece. Gf's level
+        # is locked in via its blood relationship to P as soon as it is assigned, so the much
+        # deeper traversal down S -> N -> GN cannot pull Gf down when it reaches the marriage
+        # to GN.
+        people = [
+            Person(id="P", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("root")], all_marriages=["FP"]),
+            Person(
+                id="Gf",
+                fillcolor=PersonWrapper.M_COLOR,
+                text_lines=[TextLine("grandfather")],
+                all_marriages=["FGf", "FGD"],
+            ),
+            Person(id="S", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("sibling")], all_marriages=["FS"]),
+            Person(id="N", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("nephew")], all_marriages=["FN"]),
+            Person(
+                id="GN", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("grandniece")], all_marriages=["FGN"]
+            ),
+        ]
+        families = [Family(id="FP"), Family(id="FGf"), Family(id="FS"), Family(id="FN"), Family(id="FGN")]
+        relationships = [
+            Relationship(from_id="P", to_id="FP"),
+            Relationship(from_id="FP", to_id="Gf"),
+            Relationship(from_id="FP", to_id="S"),
+            Relationship(from_id="Gf", to_id="FGf"),
+            Relationship(from_id="S", to_id="FS"),
+            Relationship(from_id="FS", to_id="N"),
+            Relationship(from_id="N", to_id="FN"),
+            Relationship(from_id="FN", to_id="GN"),
+            Relationship(from_id="Gf", to_id="FGN"),
+            Relationship(from_id="GN", to_id="FGN"),
+        ]
+        o = Organizer(FamilyTree(people, families, relationships))
+        res = o.assign_levels()
+        assert res == {
+            0: ["P"],
+            1: ["FP"],
+            2: ["Gf", "S"],
+            3: ["FGf", "FS"],
+            4: ["N"],
+            5: ["FN"],
+            6: ["GN"],
+            7: ["FGN"],
+        }
+
+    def test_junction_at_grandchild_level(self):
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("Zoe")], all_marriages=["F2"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Bob")], all_marriages=["F3"]),
+                Person(id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("Albert")], all_marriages=["F4"]),
+                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("adopted child")]),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3"), Family(id="F4")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="F1", to_id="I2"),
+                Relationship(from_id="I2", to_id="F2"),
+                Relationship(from_id="F2", to_id="I5"),
+                Relationship(from_id="I3", to_id="F3"),
+                Relationship(from_id="F3", to_id="I5"),
+                Relationship(from_id="I4", to_id="F4"),
+                Relationship(from_id="F4", to_id="I5"),
+            ],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {
+            0: ["I1"],
+            1: ["F1"],
+            2: ["I2", "I3", "I4"],
+            3: ["F2", "F3", "F4"],
+            4: ["I5"],
+        }
+
+    def test_child_adopted_by_grandparents_on_mother_side(self):
+        # I5 is the biological child of I3 (mother) and I4 (father) via F2 and is also
+        # adopted (dashed edge) by the maternal grandparents' family F1. Only the birth
+        # link to F2 is rigid; the adopted link is soft, so F1 stays on the grandparent
+        # generation and its edge to I5 spans levels instead of dragging F1 and F2 onto
+        # the same level (which would be unsolvable, since F2's parent I3 is herself a
+        # child of F1).
+        t = FamilyTree(
+            [
+                Person(
+                    id="I1",
+                    fillcolor=PersonWrapper.M_COLOR,
+                    text_lines=[TextLine("grandfather")],
+                    all_marriages=["F1"],
+                ),
+                Person(
+                    id="I2",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("grandmother")],
+                    all_marriages=["F1"],
+                ),
+                Person(id="I3", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F2"]),
+                Person(id="I4", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("father")], all_marriages=["F2"]),
+                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
+            ],
+            [Family(id="F1"), Family(id="F2")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I3"),
+                Relationship(from_id="I3", to_id="F2"),
+                Relationship(from_id="I4", to_id="F2"),
+                Relationship(from_id="F2", to_id="I5"),
+                Relationship(from_id="F1", to_id="I5", attrs={"style": "dashed"}),
+            ],
+        )
+        o = Organizer(t)
+        # The birth family stays primary; the grandparents' family is only an extra origin.
+        assert o.people["I5"].primary_parent_family_id == "F2"
+        res = o.assign_levels()
+        assert res == {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4"], 3: ["F2"], 4: ["I5"]}
+
+    def test_child_adopted_by_older_sister(self):
+        # I5 is the birth child of I1 and I2 via F1 and is also adopted (dashed edge)
+        # by F2, the family of his older sister I3 and her husband I4. The adoption
+        # makes both of I5's links soft, so he sinks below all of his origin families:
+        # one level under F2, next to where its birth children would sit, while the
+        # birth edge from F1 spans two levels down to him.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("father")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("mother")], all_marriages=["F1"]),
+                Person(
+                    id="I3",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("older-sister")],
+                    all_marriages=["F2"],
+                ),
+                Person(
+                    id="I4",
+                    fillcolor=PersonWrapper.M_COLOR,
+                    text_lines=[TextLine("brother-in-law")],
+                    all_marriages=["F2"],
+                ),
+                Person(id="I5", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
+            ],
+            [Family(id="F1"), Family(id="F2")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I3"),
+                Relationship(from_id="F1", to_id="I5"),
+                Relationship(from_id="I3", to_id="F2"),
+                Relationship(from_id="I4", to_id="F2"),
+                Relationship(from_id="F2", to_id="I5", attrs={"style": "dashed"}),
+            ],
+        )
+        o = Organizer(t)
+        assert o.people["I5"].primary_parent_family_id == "F1"
+        res = o.assign_levels()
+        assert res == {0: ["I1", "I2"], 1: ["F1"], 2: ["I3", "I4"], 3: ["F2"], 4: ["I5"]}
+
+    def test_adoptive_family_reached_only_through_adopted_child(self):
+        # I3 is the birth child of I1 and I2 via F1 and is also adopted (dashed edge)
+        # by F2, whose single parent I4 has no other connection to the tree. The only
+        # path to F2 and I4 runs through the soft adopted link from I3, so placement
+        # must follow adoption links from the child's side; the adoptive family lands
+        # one level above the child, next to the birth family.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+                Person(id="I3", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("child")]),
+                Person(
+                    id="I4",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("adoptive-mother")],
+                    all_marriages=["F2"],
+                ),
+            ],
+            [Family(id="F1"), Family(id="F2")],
+            [
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+                Relationship(from_id="F1", to_id="I3"),
+                Relationship(from_id="I4", to_id="F2"),
+                Relationship(from_id="F2", to_id="I3", attrs={"style": "dashed"}),
+            ],
+        )
+        o = Organizer(t)
+        assert o.people["I3"].primary_parent_family_id == "F1"
+        res = o.assign_levels()
+        assert res == {0: ["I1", "I2", "I4"], 1: ["F1", "F2"], 2: ["I3"]}
+
+    def test_family_without_parents_at_top_of_hierarchy(self):
+        # The constructor always registers whoever references a family in all_marriages
+        # as one of its parents, so a family can't naturally end up with an empty parents
+        # list. F0 is only referenced via I1 (F0 -> I1 makes I1 a child of F0, not a
+        # parent) purely to satisfy the "family must be referenced" check; its parents
+        # list is cleared afterward to model a family whose parents are unknown (e.g. a
+        # Gramps export that stops short of the grandparents). Such a family has no
+        # parents to climb further, so it ends up at the top of the hierarchy with only
+        # its children below it.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1"]),
+                Person(
+                    id="I2",
+                    fillcolor=PersonWrapper.F_COLOR,
+                    text_lines=[TextLine("woman")],
+                    all_marriages=["F1"],
+                ),
+            ],
+            [Family(id="F0"), Family(id="F1")],
+            [
+                Relationship(from_id="F0", to_id="I1"),
+                Relationship(from_id="I1", to_id="F1"),
+                Relationship(from_id="I2", to_id="F1"),
+            ],
+        )
+        o = Organizer(t)
+        o.families["F0"].parents = []
+        res = o.assign_levels()
+        assert res == {0: ["F0"], 1: ["I1", "I2"], 2: ["F1"]}
+
+    def test_one_family_one_parent_only_relationships(self):
+        # The parent link comes only from the relationship, not all_marriages; the
+        # constructor still registers I1 as F1's parent, so F1 is a founder family.
+        t = FamilyTree(
+            [
+                Person(id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")]),
+            ],
+            [Family(id="F1")],
+            [Relationship(from_id="I1", to_id="F1")],
+        )
+        o = Organizer(t)
+        res = o.assign_levels()
+        assert res == {0: ["I1"], 1: ["F1"]}
+
+    def test_three_families_two_parents_no_relationships_unused_family(self):
+        # Nobody references F3, so it has no parents and counts as a founder family,
+        # but its traversal shares nothing with the rest of the tree.
+        t = FamilyTree(
+            [
+                Person(
+                    id="I1", fillcolor=PersonWrapper.M_COLOR, text_lines=[TextLine("man")], all_marriages=["F1", "F2"]
+                ),
+                Person(id="I2", fillcolor=PersonWrapper.F_COLOR, text_lines=[TextLine("woman")], all_marriages=["F1"]),
+            ],
+            [Family(id="F1"), Family(id="F2"), Family(id="F3")],
+            [],
+        )
+        o = Organizer(t)
+        with pytest.raises(ValueError) as ex:
+            o.assign_levels()
+        msg = str(ex.value)
+        assert "['F3']" in msg
+        assert "share no node" in msg
