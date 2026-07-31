@@ -22,3 +22,12 @@ Practical recommendation for this project
 Since you're already consuming Graphviz DOT from Gramps, just use Graphviz's dot layout engine — it implements Sugiyama and is well-tuned for hierarchical graphs. The main knobs are rankdir, ranksep, and nodesep.
 
 If you need custom rendering (e.g., SVG with photos, interactive), ELK (Eclipse Layout Kernel) has a layered algorithm that's more controllable than Graphviz and has JS/Python bindings.
+
+---
+1. For each pair of founders and traverse downwards, keep separate dictionaries for each node in the traversal with the maximum distance from founders to the node
+2. use data from one pair of founders as a starting pair. 
+3. Find founders that intersect with the current set
+4. Within the the intersecting nodes find one with the shortest distance to the "new founders"
+5. Set new_founders' level using the difference in levels for the shared object.
+6. Merge all nodes from the additional dataset by adjusting their level using level assigned to new founders
+   for shared nodes use the lowest level form the mix

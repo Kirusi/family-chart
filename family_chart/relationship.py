@@ -1,9 +1,8 @@
 """Directed edge between two nodes."""
 
-from dataclasses import dataclass
+import copy
 
 
-@dataclass
 class Relationship:
     """Directed edge between two nodes."""
 
@@ -20,3 +19,15 @@ class Relationship:
         self.attrs = attrs
         self.source = source
         self.lookup_key = f"{from_id}_{to_id}"
+
+    def clone(self) -> "Relationship":
+        """Return a deep copy of this relationship."""
+        return copy.deepcopy(self)
+
+    def render(self) -> str:
+        """Return this relationship as a GraphViz DOT edge line."""
+        line = f'"{self.from_id}" -> "{self.to_id}"'
+        if self.attrs:
+            attr_str = " ".join(f"{key}={value}" for key, value in self.attrs.items())
+            line += f" [ {attr_str} ]"
+        return line + ";"
